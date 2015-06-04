@@ -1,0 +1,80 @@
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+
+ScreenManagement:
+	transition: FadeTransition()
+	MainScreen
+	AnotherScreen
+	AnotherScreen1
+	BusTimingScreen
+
+<MainScreen>:
+	name: "main"
+	GridLayout:
+		cols: 1
+		rows: 2
+		Button:
+			text: 'Next Screen'
+			on_press: 
+				self.text = root.do_someaction()
+			on_release: 
+				app.root.current = "other1"
+				self.text = "Paint Widget" #resets the text back to default
+		Button:
+			text: 'Bus Info'
+			on_press:
+				self.text= root.do_someaction()
+			on_release:
+				app.root.current = "bus1"
+				self.text = "Bus Info" #Resets the text back to default
+		
+
+#This screen contains the painting widget with clear canvas button function
+<AnotherScreen1>:
+	painter1: painter1.__self__
+	#backtohome1: backtohome1.__self__
+	name: "other1"
+	FloatLayout:
+		Button:
+			id: backtohome1
+			font_size: 10
+			text: 'Back to Home'
+			size_hint: (0.2, 0.2)
+			pos_hint: {"right":1, "top":1}
+			on_release: app.root.current='main'
+		Button:
+			font_size: 10
+			text: 'Clear Screen'
+			size_hint: (0.1, 0.1)
+			pos_hint: {"right":1, "bottom":1}
+			on_release: 
+				painter1.clear_canvas()
+		Painter:
+			id: painter1
+
+
+<BusTimingScreen>:
+	name: "bus1"
+	FloatLayout:
+		Label:
+			text: 'Next Bus'
+			size_hint: (0.5, 0.2)
+			pos_hint: {"left":1,"top":1}
+		Label: 
+			text: 'Arriving in:'
+			size_hint: (0.5, 0.2)
+			pos_hint: {"left":1, "top":0.8}
+		Label:
+			text: 'Subsequent Bus'
+			size_hint: (0.5, 0.2)
+			pos_hint: {"right":1, "top":1}
+		Label:
+			text: 'Arriving in:'
+			size_hint: (0.5, 0.2)
+			pos_hint: {"right":1, "top":0.8}
+		Button:
+			text: 'Test Button'
+			size_hint: (0.3, 0.3)
+			pos_hint: {"right":1, "bottom":1}
+			on_press: root.getTime()
+
+
