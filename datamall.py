@@ -1,8 +1,11 @@
+#native libraries
 import urllib
 import json
 from urlparse import urlparse
 import re
-import httplib2 as http #External library
+
+#External libraries
+import httplib2 as http 
 
 
 #References
@@ -41,7 +44,6 @@ class GetBusInfo(object):
 
     def getNextLoad(self):
         return self.nextBus["Load"]
-
     def getSubsequentLoad(self):
         return self.subsequentBus["Load"]
 
@@ -57,7 +59,7 @@ class GetBusInfo(object):
                     'UniqueUserId' : '687ef57c-810a-414a-b0f8-df4b78bf9ef6',
                     'accept' : 'application/json' 
                     }
-                    
+    
         #API parameters
         url = 'http://datamall2.mytransport.sg/ltaodataservice'
         path = '/BusArrival?'
@@ -65,7 +67,7 @@ class GetBusInfo(object):
         #Query parameters
         params = {'BusStopID' : '46429', 
                     'ServiceNo' : '911'}
-                    
+         
         #Build query string and specify type of API Call
         target = urlparse(url+path+urllib.urlencode(params) )#;print target.geturl()
         method = 'GET'
@@ -79,7 +81,7 @@ class GetBusInfo(object):
         
         #Parse JSON to print
         dumpout = json.loads(content)
+
+        #Scraping information from hash table
         self.nextBus = dumpout["Services"][0]["NextBus"]
         self.subsequentBus = dumpout["Services"][0]["SubsequentBus"]
-    
-    

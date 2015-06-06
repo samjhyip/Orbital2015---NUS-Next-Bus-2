@@ -3,45 +3,137 @@
 ScreenManagement:
 	transition: FadeTransition()
 	MainScreen
+	SearchBus
+	PreferredStops
+	AccountSettings
+
 	BusTimingScreen
+
 
 <MainScreen>:
 	name: "main"
 	GridLayout:
-		cols: 1
-		rows: 2
+		cols: 4
+		rows: 1
 		Button:
-			text: 'Bus Info'
+			text: 'Search Buses'
+			on_press:
+			on_release:
+				app.root.current = "searchbus"
+		Button:
+			text: 'Preferred Stops'
+			on_press:
+			on_release:
+				app.root.current = "preferredstops"
+		Button:
+			text: 'Account Settings'
+			on_press:
+			on_release:
+				app.root.current = "accountsettings"
+		
+		Button:
+			text: 'Test Bus - 911'
 			on_press:
 				self.text= root.do_someaction()
 			on_release:
 				app.root.current = "bus1"
-				self.text = "Bus Info" #Resets the text back to default
+				self.text = "Test Bus - 911" #Resets the text back to default
 
-
-<BusTimingScreen>:
-	name: "bus1"
+<SearchBus>:
+	name: "searchbus"
 	FloatLayout:
 		Label:
-			text: 'Next Bus'
-			size_hint: (0.5, 0.2)
+			text: 'Bus Stop Number'
+			size_hint: (0.4, 0.08)
+			pos_hint: {"top":1,"left":1}
+		TextInput:
+			id: busStopNoInput
+			size_hint: (0.4, 0.08)
+			pos_hint: {"top":1,"right":0.7}
+		Label:
+			text: 'Bus Number'
+			size_hint: (0.4, 0.08)
+			pos_hint: {"top":0.9,"left":1}
+		TextInput:
+			id: busNoInput
+			size_hint: (0.4, 0.08)
+			pos_hint: {"top":0.9,"right":0.7}
+		Button:
+			text: 'Search'
+			size_hint: (0.3, 0.08)
+			pos_hint: {"right":0.65, "top":0.75}
+		Button:
+			text: 'Home'
+			size_hint: (0.1, 0.08)
+			pos_hint: {"right":1, "bottom":1}
+			on_release:
+				app.root.current = "main"
+
+<PreferredStops>:
+	name: 'preferredstops'
+
+<AccountSettings>:
+	name: 'accountsettings'
+
+
+#Testing Only
+<BusTimingScreen>:
+	name: "bus1"
+	dateTimeNowLabel: dateTimeNowLabel.__self__
+
+	FloatLayout:
+		Label:
+			id: busStopNoLabel
+			text: '[BUS STOP NO]'
+			size_hint: (1, 0.1)
 			pos_hint: {"left":1,"top":1}
+		Label:
+			text: '911'
+			size_hint: (1, 0.1)
+			pos_hint: {"left":1,"top":0.9}
+			font_size: 40
+		Label:
+			text: 'Next Bus'
+			size_hint: (0.5, 0.1)
+			pos_hint: {"left":1,"top":0.7}
+			color: (1, 1, 0, 1)
 		Label: 
 			text: 'Arriving in:'
-			size_hint: (0.5, 0.2)
-			pos_hint: {"left":1, "top":0.8}
+			size_hint: (0.5, 0.1)
+			pos_hint: {"left":1, "top":0.6}
 		Label:
 			text: 'Subsequent Bus'
-			size_hint: (0.5, 0.2)
-			pos_hint: {"right":1, "top":1}
+			size_hint: (0.5, 0.1)
+			pos_hint: {"right":1, "top":0.7}
+			color: (1, 1, 0, 1)
 		Label:
 			text: 'Arriving in:'
-			size_hint: (0.5, 0.2)
-			pos_hint: {"right":1, "top":0.8}
+			size_hint: (0.5, 0.1)
+			pos_hint: {"right":1, "top":0.6}
 		Button:
-			text: 'Test Button'
-			size_hint: (0.3, 0.3)
+			text: 'Home'
+			size_hint: (0.1, 0.1)
 			pos_hint: {"right":1, "bottom":1}
-			on_press: root.getTime()
+			halign: 'center'
+			valign: 'middle'
+			on_release:
+				app.root.current = "main"
 
 
+
+		Label:
+			id: nextBusTime
+			text: root.getNextBusTime()
+			pos_hint: {"left":1,"top":0.5}
+			size_hint: (0.5, 0.1)
+		Label:
+			id: subsequentBusTime
+			text: root.getSubsequentBusTime()
+			pos_hint: {"right":1,"top":0.5}
+			size_hint: (0.5, 0.1)
+
+		Label:
+			id: dateTimeNowLabel
+			text: root.getDateTimeNowLabel()
+			pos_hint: {"left":1,"bottom":0.7}
+			size_hint: (0.5, 0.1)
