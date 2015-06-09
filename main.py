@@ -79,16 +79,16 @@ class BusTimingScreen(Screen):
 		else: return busServiceEnded
 
 
-	def updateNextBusTime(self, *largs):
+	def updateNextBusTime(self, *args):
 		self.ids["nextBusTime"].text = self.getNextBusTime()
-	def updateSubsequentBusTime(self, *largs):
+	def updateSubsequentBusTime(self, *args):
 		self.ids["subsequentBusTime"].text = self.getSubsequentBusTime()
 
 
 	def getDateTimeNowLabel(self):
 		Clock.schedule_once(self.updateDateTimeLabel,1)
 		return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-	def updateDateTimeLabel(self, *largs):
+	def updateDateTimeLabel(self, *args):
 		self.ids["dateTimeNowLabel"].text = self.getDateTimeNowLabel()
 
 
