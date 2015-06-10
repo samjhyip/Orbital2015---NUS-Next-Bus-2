@@ -1,36 +1,33 @@
-from kivy.properties import StringProperty, ObjectProperty
+from kivy.uix.boxlayout import BoxLayout
 
 
 
-class ModalCtl:
-    ''' just a container for keeping track of modals and implementing
-    user prompts.'''
-    def ask_connect(self, tried_connect_callback):
-        Logger.info('Opening net connect prompt')
-        text = ('You need internet access to do that.  Do you '
-                'want to go to settings to try connecting?')
-        content = AskUser(text=text,
-                          action_name='Settings',
-                          callback=tried_connect_callback,
-                          auto_dismiss=False)
-        p = Popup(title = 'Network Unavailable',
-                  content = content,
-                  size_hint=(0.8, 0.4),
-                  pos_hint={'x':0.1, 'y': 0.35})
-        modal_ctl.modal = p
-        p.open()
 
-    def ask_retry_facebook(self, retry_purchase_callback):
-        Logger.info('Facebook Failed')
-        text = ('Zuckerberg is on vacation in Monaco.  Would'
-                ' you like to retry?')
-        content = AskUser(text=text,
-                          action_name='Retry',
-                          callback=retry_purchase_callback,
-                          auto_dismiss=False)
-        p = Popup(title = 'Facebook Error',
-                  content = content,
-                  size_hint=(0.8, 0.4),
-                  pos_hint={'x':0.1, 'y': 0.35})
-        modal_ctl.modal = p
-        p.open() 
+class FacebookUI(BoxLayout):
+    ''' Seems like there was a bug in the kv that wouldn't bind on 
+    app.facebook.status, but only on post_status '''
+
+    status_text = StringProperty()
+    def __init__(self, **kwargs):
+        super(FacebookUI, self).__init__(**kwargs)
+        app.bind(facebook=self.hook_fb)
+    
+    def hook_fb(self, app, fb):
+        fb.bind(status=self.on_status)
+        app.bind(post_status=self.on_status)
+        
+    def on_status(self, instance, status):
+        self.status_text = \
+        'Facebook Status: [b]{}[/b]\nMessage: [b]{}[/b]'.format(
+            app.facebook.status, 
+            app.post_status)
+
+class FacebookApp(App):
+    post_status = StringProperty('-')
+    user_infos = StringProperty('-')
+    facebook = ObjectProperty()
+
+    def build(self):
+        global app
+        app = self
+        return FacebookUI()
