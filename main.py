@@ -7,6 +7,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.button import Button
 from kivy.clock import Clock
 
 #Python Native Libraries
@@ -21,7 +22,9 @@ busServiceEnded = 'Not Available'
 #Bus Timing Update Frequency (seconds)
 _updateFrequency = 10
 
-
+class BusInfo(FloatLayout):
+	def __init__(self, **kwargs):
+		super(BusInfo, self).__init__(**kwargs)
 
 class DateTimeInfo():
 	def getTimeNow(self):

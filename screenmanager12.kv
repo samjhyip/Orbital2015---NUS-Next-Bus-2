@@ -9,6 +9,14 @@ ScreenManagement:
 
 	BusTimingScreen
 
+<HomeButton@Button>:
+	text: 'Home'
+	size_hint: (0.1, 0.08)
+	pos_hint: {"right":1, "bottom":1}
+	on_release:
+		app.root.current = "main"
+
+
 
 <MainScreen>:
 	name: "main"
@@ -62,18 +70,18 @@ ScreenManagement:
 			text: 'Search'
 			size_hint: (0.3, 0.08)
 			pos_hint: {"right":0.65, "top":0.75}
-		Button:
-			text: 'Home'
-			size_hint: (0.1, 0.08)
-			pos_hint: {"right":1, "bottom":1}
-			on_release:
-				app.root.current = "main"
+		HomeButton
+		
 
 <PreferredStops>:
 	name: 'preferredstops'
+	HomeButton
 
 <AccountSettings>:
 	name: 'accountsettings'
+	FloatLayout:
+		HomeButton
+		
 
 
 #Testing Only
@@ -81,7 +89,13 @@ ScreenManagement:
 	name: "bus1"
 	dateTimeNowLabel: dateTimeNowLabel.__self__
 
-	FloatLayout:
+	Label:
+		id: dateTimeNowLabel
+		text: root.getDateTimeNowLabel()
+		pos_hint: {"left":1,"bottom":0.7}
+		size_hint: (0.5, 0.1)
+
+	BusInfo:
 		Label:
 			id: busStopNoLabel
 			text: '[BUS STOP NO]'
@@ -110,17 +124,6 @@ ScreenManagement:
 			text: 'Arriving in:'
 			size_hint: (0.5, 0.1)
 			pos_hint: {"right":1, "top":0.6}
-		Button:
-			text: 'Home'
-			size_hint: (0.1, 0.1)
-			pos_hint: {"right":1, "bottom":1}
-			halign: 'center'
-			valign: 'middle'
-			on_release:
-				app.root.current = "main"
-
-
-
 		Label:
 			id: nextBusTime
 			text: root.getNextBusTime()
@@ -132,8 +135,4 @@ ScreenManagement:
 			pos_hint: {"right":1,"top":0.5}
 			size_hint: (0.5, 0.1)
 
-		Label:
-			id: dateTimeNowLabel
-			text: root.getDateTimeNowLabel()
-			pos_hint: {"left":1,"bottom":0.7}
-			size_hint: (0.5, 0.1)
+	HomeButton
