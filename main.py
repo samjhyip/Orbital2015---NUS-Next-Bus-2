@@ -16,14 +16,11 @@ import re
 
 #Imported Source Files
 import datamall
-from facebookSDKHandler import *
 
 #Default <Bus Service ended> text
 busServiceEnded = 'Not Available'
 #Bus Timing Update Frequency (seconds)
 _updateFrequency = 10
-#Facebook APP ID (NEXT BUS 2)
-FACEBOOK_APP_ID = '904238149623014'
 
 class BusInfo(FloatLayout):
 	def __init__(self, **kwargs):
@@ -39,15 +36,6 @@ class DateTimeInfo():
 	def getUTCTime(self):
 		#Returns UTC Time. To calculate difference between arrival and current timings
 		return datetime.datetime.utcnow().strftime("%H:%M:%S")
-
-class HomeButton(Button):
-	def __init__(self,**kwargs):
-		super(HomeButton, self).__init__(**kwargs)
-
-#Float Layout Containing Facebook Login Button, Facebook Get User info Button
-class FacebookUI(FloatLayout):
-	def __init__(self,**kwargs):
-		super(FacebookUI,self).__init__(**kwargs)
 
 
 class MainScreen(Screen):
@@ -107,17 +95,13 @@ class BusTimingScreen(Screen):
 		self.ids["dateTimeNowLabel"].text = self.getDateTimeNowLabel()
 
 
-#app.root
 class ScreenManagement(ScreenManager):
 	pass
 
 
-#app
-class ScreenManager(App):
 
+class ScreenManager(App):
 	def build(self):
-		global app
-		app = self
 		presentation = Builder.load_file("screenmanager12.kv")
 		return presentation
 
