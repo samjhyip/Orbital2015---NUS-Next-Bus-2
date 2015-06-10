@@ -5,7 +5,7 @@ ScreenManagement:
 	MainScreen
 	SearchBus
 	PreferredStops
-	AccountSettings
+	FacebookUI
 
 	BusTimingScreen
 
@@ -77,10 +77,20 @@ ScreenManagement:
 	name: 'preferredstops'
 	HomeButton
 
-<AccountSettings>:
+<FacebookUI>:
 	name: 'accountsettings'
-	FloatLayout:
-		HomeButton
+	Label:
+		id: facebook_status_label
+		text: root.status_text
+		markup: True
+		pos_hint: {"top":1,"left":1}
+    Button:
+        text: 'Log into Facebook'
+        size_hint_y: None
+        height: '48dp'
+        on_release: 
+        	app.facebook._open()
+	HomeButton
 		
 
 
