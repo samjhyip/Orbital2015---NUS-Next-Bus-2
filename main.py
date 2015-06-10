@@ -9,6 +9,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.clock import Clock
+from kivy.properties import StringProperty, ObjectProperty
 
 #Python Native Libraries
 import datetime
@@ -16,11 +17,15 @@ import re
 
 #Imported Source Files
 import datamall
+from facebookSDKHandler import *
+from facebook import Facebook #jnius Interpreter
 
 #Default <Bus Service ended> text
 busServiceEnded = 'Not Available'
 #Bus Timing Update Frequency (seconds)
 _updateFrequency = 10
+#Facebook APP ID
+FACEBOOK_APP_ID = '904238149623014'
 
 class BusInfo(FloatLayout):
 	def __init__(self, **kwargs):
@@ -105,6 +110,16 @@ class ScreenManager(App):
 		presentation = Builder.load_file("screenmanager12.kv")
 		return presentation
 
+
+	post_status = StringProperty('-')
+	user_infos = StringProperty('-')
+	facebook = ObjectProperty()
+
+	def on_start(self):
+		self.facebook = Facebook(FACEBOOK_APP_ID,
+                                 permissions=['publish_actions', 'basic_info'])
+		global modal_ctl
+		modal_ctl = ModalCtl()
 
 if __name__=="__main__":
 	ScreenManager().run()
