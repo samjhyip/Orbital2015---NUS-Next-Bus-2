@@ -64,31 +64,29 @@ class BusTimingScreen(Screen):
 
 	def getNextBusTime(self):
 		Clock.schedule_once(self.updateNextBusTime,_updateFrequency)
-		dateTime = datamall.GetBusInfo().getNextTiming()
-		grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
-		#grabTime[0]==date #grabTime[1]==time(UTC)
-		timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
-		timeLeft = re.split(r'\D',str(timedelta))
-		if dateTime:
-			#To fix Hours=null
-			if not timeLeft[0]:
-				timeLeft[0]=0
-			return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
-		else: return busServiceEnded
+		try:
+			dateTime = datamall.GetBusInfo().getNextTiming()
+			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
+			#grabTime[0]==date #grabTime[1]==time(UTC)
+			timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
+			timeLeft = re.split(r'\D',str(timedelta))
+			if dateTime:
+				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
+		except TypeError:
+			return busServiceEnded
 
 	def getSubsequentBusTime(self):
 		Clock.schedule_once(self.updateSubsequentBusTime,_updateFrequency)
-		dateTime = datamall.GetBusInfo().getSubsequentTiming()
-		grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
-		#grabTime[0]==date #grabTime[1]==time(UTC)
-		timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
-		timeLeft = re.split(r'\D',str(timedelta))
-		if dateTime:
-			#To fix Hours=null
-			if not timeLeft[0]:
-				timeLeft[0]=0
-			return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
-		else: return busServiceEnded
+		try:
+			dateTime = datamall.GetBusInfo().getSubsequentTiming()
+			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
+			#grabTime[0]==date #grabTime[1]==time(UTC)
+			timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
+			timeLeft = re.split(r'\D',str(timedelta))
+			if dateTime:
+				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
+		except TypeError:	
+			return busServiceEnded
 
 
 	def updateNextBusTime(self, *args):
