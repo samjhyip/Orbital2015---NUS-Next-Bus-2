@@ -219,7 +219,10 @@ class ScreenManager(App):
 		#Define callback as modal_ctl.ask_connect()
 		netcheck.set_prompt(modal_ctl.ask_connect)
 		self.facebook.set_retry_prompt(modal_ctl.ask_retry_facebook)
-
+		
+	def on_pause(self):
+		Logger.info('Android: App paused, now wait for resume.')
+		return True
 
 if __name__=="__main__":
 	ScreenManager().run()
