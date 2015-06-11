@@ -4,10 +4,10 @@
 title = Bus_Time
 
 # (str) Package name
-package.name = bustime
+package.name = facebook
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test.bustime
+package.domain = org.test
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -60,7 +60,7 @@ fullscreen = 1
 #
 
 # (list) Permissions
-android.permissions =INTERNET
+android.permissions =INTERNET,ACCESS_NETWORK_STATE
 
 # (int) Android API to use
 android.api = 14
@@ -131,7 +131,7 @@ android.ndk = 9c
 
 # (list) Android library project to add (will be added in the
 # project.properties automatically.)
-#android.library_references =
+android.library_references = ../../Desktop/facebook-android-sdk-3.0.2/facebook
 
 #
 # iOS specific
