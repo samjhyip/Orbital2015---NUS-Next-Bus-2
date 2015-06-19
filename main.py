@@ -300,6 +300,7 @@ class FacebookUI(Screen):
     def __init__(self, **kwargs):
         super(FacebookUI, self).__init__(**kwargs)
         app.bind(facebook=self.hook_fb)
+        self.status_text = 'Facebook Status: [b]{}[/b]\nMessage: [b]{}[/b]'.format('Not Connected','-')
         
     
     def hook_fb(self, app, fb):
