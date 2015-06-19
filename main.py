@@ -20,6 +20,7 @@ import re
 
 #Imported Source Files
 import datamall
+import datadb
 import netcheck
 from facebook import Facebook #jnius Interpreter
 
@@ -54,7 +55,150 @@ class MainScreen(Screen):
 		return 'Button Press is detected!'
 
 class SearchBus(Screen):
-	pass
+	current_labels=[]
+	
+	#Gets user input from the text fields busStopNoInput & busNoInput
+	def getUserInput(self):
+		self._busstopnoinput = self.ids['busStopNoInput'].text
+		self._busnoinput = ''
+
+	def searchUserInput(self):
+		#Instantiates a connection to datamall API
+		#Bus 911 @ a working bus stop: 46429,911/83139
+		app._toast('Searching for {}'.format(self._busstopnoinput))
+		#Gets list of all bus services in operation		
+		busservices = datamall.BusInfo(self._busstopnoinput,self._busnoinput).getallServices()
+
+		#Removes existing labels, (if any) using label ref
+		if self.current_labels:
+			for _label in self.current_labels:
+				self.remove_widget(_label)
+
+		#Get user preferences (saved buses)
+		app.getUserSaveBusRecords()
+
+		#creates new labels and appends ref
+		for (eachbus,row) in zip(busservices,range(len(busservices))):
+			#Creates an EachBus instance for eachbus & Adds the Label instance to root. One bus service to one EachBus() instance
+			each_bus_instance = EachBus(self._busstopnoinput, eachbus['ServiceNo'], row)			
+			alllabels = each_bus_instance.getLabels()
+
+			#Append each label and checkbox to current screen
+			for eachlabel in alllabels:
+				self.current_labels.append(eachlabel)
+				self.add_widget(eachlabel)
+			
+			#Checkbox::Binds the Boolean Property 'active' to self.on_checkbox_active()		
+			alllabels[5].bind(active=partial(self.on_checkbox_active, each_bus_instance.getServiceNo(), each_bus_instance.getBusStopID(), alllabels[5]))
+
+	def on_checkbox_active(self, _serviceno, _busstopid, _labelref, *args):
+		#If logged in and has checked this bus		
+		if app._facebookid and _labelref.active == True:
+			#updates mySQL DB
+			thread = Thread(target=self.createUserSaveBusRecords, args=(_serviceno, _busstopid, _labelref))
+			thread.start()
+			app.all_saved_busstopNo.append(_busstopid)
+			app.all_saved_busno.append(_serviceno)
+			app._toast('Saved!')
+		#If logged in and has unchecked this bus
+		elif app._facebookid and not _labelref.active == True:
+			#updates mySQL DB
+			app.all_saved_busstopNo.remove(_busstopid)
+			app.all_saved_busno.remove(_serviceno)
+			app._toast('Deleted!')
+		elif not app._facebookid:
+			_labelref.active = False
+			app._toast('Please login into Facebook first')
+
+	def createUserSaveBusRecords(self, _serviceno, _busstopid, _labelref):
+		#if the SaveBusRecords does not exist, response code of GET request is != 200
+		#Create a new UserSaveBusRecords
+		response = datadb.PostDBInfo().createUserSaveBusRecords(_serviceno, _busstopid, app._facebookid)
+		Logger.info('Saving the User\'s preference' + str(response))
+
+
+	
+#Contains the instance for Each bus
+class EachBus():
+	#Creates all the labels upon initialization
+	def __init__(self, _busstopid, _serviceno, row):
+		self._busstopid = _busstopid
+		self._serviceno = _serviceno
+		#creates the nextbustime instance
+		self.nextbustimelabel = Label(font_size=22, text=self.getNextBusTime(), size_hint=(0.3,0.05), pos_hint={"x":0.2, "y":(0.75-row*0.1)})
+		self.nextbusloadlabel = Label(font_size=22, text=self.getNextBusLoad(), size_hint=(0.3,0.05), pos_hint={"x":0.2, "y":(0.70-row*0.1)})
+		#creates the subsequentbustime instance
+		self.subsequentbustimelabel = Label(font_size=22, text=self.getSubsequentBusTime(), size_hint=(0.3,0.05), pos_hint={"x":0.5, "y":(0.75-row*0.1)})
+		self.subsequentbusloadlabel = Label(font_size=22, text=self.getSubsequentBusLoad(), size_hint=(0.3,0.05), pos_hint={"x":0.5, "y":(0.70-row*0.1)})
+		#Creates the service number instance
+		self.servicenolabel = Label(font_size=22, text=self.getServiceNo(), size_hint=(0.2,0.05), pos_hint={"x":0, "y":(0.75-row*0.1)})
+		#Creates the save bus checkbox
+		saved_status = False
+		#checks if the user has saved this bus 
+		if app.all_saved_busstopNo and app.all_saved_busno:
+			if (self._busstopid,self._serviceno) in zip(app.all_saved_busstopNo, app.all_saved_busno):
+				saved_status=True
+		self.savebuscheckbox = CheckBox(size_hint=(0.1,0.1), pos_hint={"x":0.85, "y":(0.725-row*0.1)}, active=saved_status)
+
+
+	def getNextBusTime(self):
+		try:
+			#Creates a GET request instance
+			self.busInstance = datamall.BusInfo(self._busstopid,self._serviceno)
+			self.busInstance.scrapeBusInfo()
+			dateTime = self.busInstance.getNextTiming()
+			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
+			#grabTime[0]==date #grabTime[1]==time(UTC)
+			timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
+			timeLeft = re.split(r'\D',str(timedelta))
+			if dateTime:	
+				#timeLeft[0] can return null at times
+				if not (timeLeft[0]):
+					timeLeft[0]=0	
+				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
+		except TypeError:
+			return busServiceEnded
+
+	def getSubsequentBusTime(self):
+		try:
+			#Creates a GET request instance
+			self.busInstance = datamall.BusInfo(self._busstopid,self._serviceno)
+			self.busInstance.scrapeBusInfo()
+			dateTime = self.busInstance.getSubsequentTiming()
+			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
+			#grabTime[0]==date #grabTime[1]==time(UTC)
+			timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
+			timeLeft = re.split(r'\D',str(timedelta))
+			if dateTime:
+				#timeLeft[0] can return null at times
+				if not (timeLeft[0]):
+					timeLeft[0]=0	
+				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
+		except TypeError:	
+			return busServiceEnded
+
+	#Gets Bus Stop ID and Service number that is in request
+	def getBusStopID(self):
+		return self.busInstance.getbusStopID()
+	def getServiceNo(self):
+		return self.busInstance.getServiceNo()
+
+	def getNextBusLoad(self):
+		return self.busInstance.getNextLoad()
+	def getSubsequentBusLoad(self):
+		return self.busInstance.getSubsequentLoad()
+	
+	#Gets the Label object
+	def getLabels(self):
+		self.alllabels=[self.servicenolabel,
+				self.nextbustimelabel,
+				self.nextbusloadlabel,
+				self.subsequentbustimelabel,
+				self.subsequentbusloadlabel,
+				self.savebuscheckbox]
+		return self.alllabels
+
+
 
 class PreferredStops(Screen):
 	pass
