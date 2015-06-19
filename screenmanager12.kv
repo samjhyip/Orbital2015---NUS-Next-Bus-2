@@ -79,19 +79,29 @@ ScreenManagement:
 
 <FacebookUI>:
 	name: 'accountsettings'
-	Label:
-		id: facebook_status_label
-		text: root.status_text
-		markup: True
-		pos_hint: {"top":1,"left":1}
-    Button:
-        text: 'Log into Facebook'
-        size_hint_y: None
-        height: '48dp'
-        on_release: 
-        	app.facebook._open()
-	HomeButton
-		
+	FloatLayout:
+		Label:
+			id: facebook_status_label
+			text: root.status_text
+			markup: True
+			pos_hint: {"top":1,"left":1}
+			size_hint: (0.4, 0.1)
+		Button:
+			text: 'Log into Facebook'
+			size_hint: (0.3,0.08)
+			pos_hint: {"x":0, "y":0}
+			on_release: app.facebook._open()
+		Button:
+			text: 'Get user informations'
+			size_hint: (0.3,0.08)
+			pos_hint: {"x":0.3, "y":0}
+			on_release: 
+				app.fb_me()
+		Label:
+			text: app.user_infos
+			size_hint: (1,0.5)
+			pos_hint: {"x":0,"y":0.2}
+		HomeButton
 
 
 #Testing Only
