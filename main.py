@@ -346,6 +346,14 @@ class ScreenManager(App):
 	post_status = StringProperty('-')
 	user_infos = StringProperty('-')
 	facebook = ObjectProperty()
+	
+	#Class variables
+	_facebookid = ''
+	_username = ''
+	_firstname = ''
+	_lastname = ''
+	all_saved_busstopNo = []
+	all_saved_busno = []
 
 	def build(self):
 		global app
