@@ -27,12 +27,10 @@ from facebook import Facebook #jnius Interpreter
 #Default <Bus Service ended> text
 busServiceEnded = 'Not Available'
 #Bus Timing Update Frequency (seconds)
-_updateFrequency = 10
+_updateFrequency = 5
 #Facebook APP ID
 FACEBOOK_APP_ID = '904238149623014'
 
-#Global Variables
-facebook_status_global = ''
 
 class BusInfo(FloatLayout):
 	def __init__(self, **kwargs):
@@ -52,8 +50,8 @@ class DateTimeInfo():
 
 class MainScreen(Screen):
 	def do_someaction(self):
-		return 'Button Press is detected!'
-
+		return 'Button Pressed!'
+ 
 class SearchBus(Screen):
 	current_labels=[]
 	
@@ -294,7 +292,6 @@ class FacebookUI(Screen):
         'Facebook Status: [b]{}[/b]\nMessage: [b]{}[/b]'.format(
             app.facebook.status, 
             app.post_status)
-        facebook_status_global = self.status_text
 
 
 class ModalCtl:
@@ -307,7 +304,7 @@ class ModalCtl:
                 'want to go to settings to try connecting?')
         content = AskUser(text=text,
                           action_name='Settings',
-                          callback=tried_connect_callback,
+                          callback=tried_connect_callback,	
                           auto_dismiss=False)
 
         #The Popup widget is used to create modal popups. By default, the popup will cover the whole parent window. When you are creating a popup, you must at least set a Popup.title and Popup.content.
@@ -341,8 +338,9 @@ class ScreenManagement(ScreenManager):
 	pass
 
 
-class ScreenManager(App):
 
+class ScreenManager(App):
+	#Callback properties
 	post_status = StringProperty('-')
 	user_infos = StringProperty('-')
 	facebook = ObjectProperty()
