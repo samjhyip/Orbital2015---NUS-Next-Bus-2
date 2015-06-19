@@ -203,16 +203,24 @@ class PreferredStops(Screen):
 
 
 class BusTimingScreen(Screen):
-
+	#TEST VARIABLES
+	_busstopid = 46429
+	_serviceno = 911
+	
 	def getNextBusTime(self):
 		Clock.schedule_once(self.updateNextBusTime,_updateFrequency)
 		try:
-			dateTime = datamall.GetBusInfo().getNextTiming()
+			self.busInstance = datamall.BusInfo(self._busstopid,self._serviceno)
+			self.busInstance.scrapeBusInfo()
+			dateTime = self.busInstance.getNextTiming()
 			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
 			#grabTime[0]==date #grabTime[1]==time(UTC)
 			timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
 			timeLeft = re.split(r'\D',str(timedelta))
 			if dateTime:
+				#timeLeft[0] can return null at times
+				if not (timeLeft[0]):
+					timeLeft[0]=0	
 				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
 		except TypeError:
 			return busServiceEnded
@@ -220,12 +228,17 @@ class BusTimingScreen(Screen):
 	def getSubsequentBusTime(self):
 		Clock.schedule_once(self.updateSubsequentBusTime,_updateFrequency)
 		try:
-			dateTime = datamall.GetBusInfo().getSubsequentTiming()
+			self.busInstance = datamall.BusInfo(self._busstopid,self._serviceno)
+			self.busInstance.scrapeBusInfo()
+			dateTime = self.busInstance.getSubsequentTiming()
 			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
 			#grabTime[0]==date #grabTime[1]==time(UTC)
 			timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
 			timeLeft = re.split(r'\D',str(timedelta))
 			if dateTime:
+				#timeLeft[0] can return null at times
+				if not (timeLeft[0]):
+					timeLeft[0]=0	
 				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
 		except TypeError:	
 			return busServiceEnded
@@ -243,6 +256,10 @@ class BusTimingScreen(Screen):
 	def updateDateTimeLabel(self, *args):
 		self.ids["dateTimeNowLabel"].text = self.getDateTimeNowLabel()
 
+	def getBusStopID(self):
+		return self.busInstance.getbusStopID()
+	def getServiceNo(self):
+		return self.busInstance.getServiceNo()
 
 
 class AskUser(RelativeLayout):
