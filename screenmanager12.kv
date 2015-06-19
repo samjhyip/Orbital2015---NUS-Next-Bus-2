@@ -49,29 +49,57 @@ ScreenManagement:
 
 <SearchBus>:
 	name: "searchbus"
+	id: searchbusscreen
 	FloatLayout:
+		#Row 1
+		#Bus Stop No Label
 		Label:
+			id:searchbus1
 			text: 'Bus Stop Number'
-			size_hint: (0.4, 0.08)
-			pos_hint: {"top":1,"left":1}
+			size_hint: (0.3, 0.08)
+			pos_hint: {"x":0.25,"y":0.92}
+		#Bus Stop No Input		
 		TextInput:
 			id: busStopNoInput
-			size_hint: (0.4, 0.08)
-			pos_hint: {"top":1,"right":0.7}
-		Label:
-			text: 'Bus Number'
-			size_hint: (0.4, 0.08)
-			pos_hint: {"top":0.9,"left":1}
-		TextInput:
-			id: busNoInput
-			size_hint: (0.4, 0.08)
-			pos_hint: {"top":0.9,"right":0.7}
+			size_hint: (0.25, 0.08)
+			pos_hint: {"x":0.55,"y":0.92}
+			multiline: False
+			text: '83139'
+		#Search Button
 		Button:
 			text: 'Search'
-			size_hint: (0.3, 0.08)
-			pos_hint: {"right":0.65, "top":0.75}
-		HomeButton
+			size_hint: (0.2, 0.08)
+			pos_hint: {"x":0.8,"y":0.92}
+			on_release: 
+				root.getUserInput()
+				root.searchUserInput()
 		
+		#Row 2
+		#Header: Service No Label
+		Label:
+			text: '[b]Service Number[/b]'
+			size_hint: (0.2, 0.1)
+			pos_hint: {"x":0, "y":0.8}
+			markup: True
+		#Header: Next Bus Label
+		Label:
+			text: '[b]Next Bus[/b]'
+			size_hint: (0.3,0.1)
+			pos_hint: {"x":0.2,"y":0.8}
+			markup: True
+		#Header: Subsequent Bus Label
+		Label:
+			text: '[b]Subsequent Bus[/b]'
+			size_hint: (0.3,0.1)
+			pos_hint: {"x":0.5,"y":0.8}
+			markup: True
+		Label:
+			text: '[b]Save this Bus![/b]'
+			size_hint: (0.2,0.1)
+			pos_hint: {"x":0.8,"y":0.8}
+			markup: True
+		HomeButton
+
 
 <PreferredStops>:
 	name: 'preferredstops'
@@ -118,28 +146,31 @@ ScreenManagement:
 	BusInfo:
 		Label:
 			id: busStopNoLabel
-			text: '46429'
+			text: '[color=ff0000][b]Bus Stop ID: [/b]'+root.getBusStopID()+'[/color]'
 			size_hint: (1, 0.1)
 			pos_hint: {"left":1,"top":1}
+			markup: True
 		Label:
-			text: '911'
+			text: root.getServiceNo()
 			size_hint: (1, 0.1)
 			pos_hint: {"left":1,"top":0.9}
 			font_size: 40
 		Label:
-			text: 'Next Bus'
+			text: '[b]'+'Next Bus'+'[/b]'
 			size_hint: (0.5, 0.1)
 			pos_hint: {"left":1,"top":0.7}
 			color: (1, 1, 0, 1)
+			markup: True
 		Label: 
 			text: 'Arriving in:'
 			size_hint: (0.5, 0.1)
 			pos_hint: {"left":1, "top":0.6}
 		Label:
-			text: 'Subsequent Bus'
+			text: '[b]'+'Subsequent Bus'+'[/b]'
 			size_hint: (0.5, 0.1)
 			pos_hint: {"right":1, "top":0.7}
 			color: (1, 1, 0, 1)
+			markup: True
 		Label:
 			text: 'Arriving in:'
 			size_hint: (0.5, 0.1)
