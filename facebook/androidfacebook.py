@@ -153,16 +153,16 @@ class AndroidFacebook(EventDispatcher):
 
     def _try_request(self, r):
         if self._pending_request is not None:
-            self._toast('request already in progress')
+            self._toast('Request already in progress')
             return False
         elif not netcheck.connection_available():
             self._pending_request = r
             netcheck.ask_connect(self._connection_callback)
             return True
         elif not self.is_open:
-            self._toast('will facebook shortly')
+            self._toast('Logging in!')
         else:
-            self._toast('facebooking')
+            self._toast('Loading Facebook Information')
         self._pending_request = r
         # this is a pretty robust way to end up processing the request
         self._open()

@@ -24,7 +24,7 @@ import httplib2 as http
 #API URL: http://datamall2.mytransport.sg/ltaodataservice/BusArrival
 
 
-class GetBusInfo(object):
+class BusInfo(object):
 
     #def printbus(self, busNo):
     #    print busNo["Name"]                 #nextBus, subsequentBus
@@ -36,24 +36,7 @@ class GetBusInfo(object):
     #    print time
     #    print busNo["Feature"] 
 
-    def getNextTiming(self):
-        return self.nextBus["EstimatedArrival"]
-
-    def getSubsequentTiming(self):
-        return self.subsequentBus["EstimatedArrival"]
-
-    def getNextLoad(self):
-        return self.nextBus["Load"]
-    def getSubsequentLoad(self):
-        return self.subsequentBus["Load"]
-
-    def getNextFeature(self):
-        return self.nextBus["Feature"]
-
-    def getSubsequentLoad(self):
-        return self.subsequentBus["Feature"]    
-
-    def __init__(self):
+    def __init__(self,busstopid,serviceno):
         #authentication parameters
         headers = {'AccountKey' : '1DxxvzbHwydZ3uw6UKNA9w==',
                     'UniqueUserId' : '687ef57c-810a-414a-b0f8-df4b78bf9ef6',
@@ -65,8 +48,9 @@ class GetBusInfo(object):
         path = '/BusArrival?'
         
         #Query parameters
-        params = {'BusStopID' : '46429', 
-                    'ServiceNo' : '911'}
+        params = {'BusStopID' : str(busstopid), 
+                    'ServiceNo' : str(serviceno)}
+        self.params = params 
          
         #Build query string and specify type of API Call
         target = urlparse(url+path+urllib.urlencode(params) )#;print target.geturl()
@@ -80,8 +64,42 @@ class GetBusInfo(object):
         response, content = h.request(target.geturl(), method, body, headers)
         
         #Parse JSON to print
-        dumpout = json.loads(content)
+        self.dumpout = json.loads(content)
 
+    #SINGLE BUS TEST REPONSE
+    def scrapeBusInfo(self):
         #Scraping information from hash table
-        self.nextBus = dumpout["Services"][0]["NextBus"]
-        self.subsequentBus = dumpout["Services"][0]["SubsequentBus"]
+        self.nextBus = self.dumpout["Services"][0]["NextBus"]
+        self.subsequentBus = self.dumpout["Services"][0]["SubsequentBus"]
+
+    def getNextTiming(self):
+        return self.nextBus["EstimatedArrival"]
+    
+    def getSubsequentTiming(self):
+        return self.subsequentBus["EstimatedArrival"]
+
+    def getNextLoad(self):
+        return self.nextBus["Load"]
+    def getSubsequentLoad(self):
+        return self.subsequentBus["Load"]
+
+    def getNextFeature(self):
+        return self.nextBus["Feature"]
+    def getSubsequentFeature(self):
+        return self.subsequentBus["Feature"]    
+
+    #Gets the bus stop in request. Returns a string
+    def getbusStopID(self):
+        return self.params['BusStopID']
+
+    #Gets the service number in request. Returns a string
+    def getServiceNo(self):
+        return self.params['ServiceNo']
+    
+    #Gets the list of services. Returns a list of nested dictionary
+    def getallServices(self):
+	return self.dumpout["Services"]
+
+    #DEBUG::Gets Raw JSON Output
+    def getJSONdump(self):
+	return self.dumpout
