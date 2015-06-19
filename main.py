@@ -14,7 +14,9 @@ from kivy.properties import StringProperty, ObjectProperty
 from kivy.logger import Logger
 from kivy.uix.popup import Popup
 
-#Python Native Libraries
+#Python Native
+from functools import partial
+from threading import Thread
 import datetime
 import re
 
