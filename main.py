@@ -4,15 +4,17 @@
 from kivy.app import App 
 from kivy.lang import Builder
 from kivy.uix.widget import Widget
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.button import Button
 from kivy.clock import Clock
-from kivy.properties import StringProperty, ObjectProperty
+from kivy.properties import StringProperty, ObjectProperty, BooleanProperty
 from kivy.logger import Logger
 from kivy.uix.popup import Popup
+from kivy import platform
+from kivy.uix.checkbox import CheckBox
+from kivy.uix.label import Label
 
 #Python Native
 from functools import partial
