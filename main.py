@@ -364,9 +364,94 @@ class ScreenManager(App):
 		netcheck.set_prompt(modal_ctl.ask_connect)
 		self.facebook.set_retry_prompt(modal_ctl.ask_retry_facebook)
 		
+	#Allows for this app to be paused when Facebook app is opened
 	def on_pause(self):
 		Logger.info('Android: App paused, now wait for resume.')
 		return True
+	
+	#Allows for this app to be resumed after Facebook authorisation is completed
+	def on_resume(self):
+		pass
+
+	def fb_me(self):
+		def callback(success, user=None, response=None, *args):
+			if not success:
+			    return
+			'''since we're using the JNIus proxy's API here,
+			we have to test if we're on Android to avoid implementing
+			a mock user class with the verbose Java user interface'''
+			if platform() == 'android' and response.getError():
+				Logger.info(response.getError().getErrorMessage())
+			    #If this platform is android & response type not error
+			if platform() == 'android' and not response.getError():
+				infos = []
+				infos.append('Name: {}'.format(user.getName()))
+				infos.append('FirstName: {}'.format(user.getFirstName()))
+				infos.append('MiddleName: {}'.format(user.getMiddleName()))
+				infos.append('LastName: {}'.format(user.getLastName()))
+				infos.append('Link: {}'.format(user.getLink()))
+				infos.append('Username: {}'.format(user.getUsername()))
+				infos.append('Birthday: {}'.format(user.getBirthday()))
+				location = user.getLocation()
+				if location:
+					infos.append('Country: {}'.format(location.getCountry()))
+					infos.append('City: {}'.format(location.getCity()))
+					infos.append('State: {}'.format(location.getState()))
+					infos.append('Zip: {}'.format(location.getZip()))
+					infos.append('Latitude: {}'.format(location.getLatitude()))
+					infos.append('Longitude: {}'.format(location.getLongitude()))
+				else:
+					infos.append('No location available')
+				#Get User Details for DB Storage
+				#Do something to get the ID part of the Facebook Link. Returns the numerical part of the Link
+				self._facebookid = re.findall(r'[0-9]+',user.getLink())[0]
+				self._username = user.getUsername()
+				self._firstname = user.getFirstName()
+				self._lastname = user.getLastName()
+				self.startnewSaveThread()
+			#if this platform is not android
+			else:
+				infos = ['ha', 'ha', 'wish', 'this', 'was', 'real']
+			self.user_infos = '\n'.join(infos)
+		self.facebook.me(callback)
+
+	#separate thread to save basic user information
+	def startnewSaveThread(self):
+		thread = Thread(target=self.savefacebookinfo,args=())
+		thread.start()
+
+	#callback for saving user information
+	def savefacebookinfo(self):
+		#Use Identifier of the record to retrieve response code from 'users' table
+		response = datadb.GetDBInfo().requestRecordByIdentifier("users",self._facebookid)
+		Logger.info('Finding user from DreamFactory RESTful API. Response Code: {}'.format(response))
+		#If record does not exist, create new FacebookID
+		if response.status_code != 200:
+			response = datadb.PostDBInfo().createUserTableRecords(self._facebookid,self._firstname+self._lastname,self._firstname,self._lastname)
+			Logger.info('Creating user from DreamFactory RESTful API. Response: {}'.format(response))
+	
+	def getFacebookID(self):
+		return self._facebookid
+
+	#non-nus buses = requires bus stop and bus information
+	def savePreferredBus(self):
+		pass
+
+	def savePreferredNUSBusstop(self):
+		pass
+
+	def _toast(self, text, length_long=False):
+		toast.toast(text, length_long)
+
+	#GET Request. Returns list of saved busNo and list of saved busstopNo using app._facebookid
+	def getUserSaveBusRecords(self):
+		#Retrieves for the first time
+		if app._facebookid and not (self.all_saved_busstopNo and self.all_saved_busno):
+			#gets a list of all the saved buses using facebookid		
+			response = datadb.GetDBInfo().requestSavedBusRecord(app._facebookid)
+			for each_bus_saved in response['record']:
+				self.all_saved_busstopNo.append(each_bus_saved['busstopNo'])
+				self.all_saved_busno.append(each_bus_saved['busno'])
 
 if __name__=="__main__":
 	ScreenManager().run()
