@@ -22,6 +22,7 @@ import re
 import datamall
 import datadb
 import netcheck
+import toast
 from facebook import Facebook #jnius Interpreter
 
 #Default <Bus Service ended> text
