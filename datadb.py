@@ -100,7 +100,7 @@ class PostDBInfo(object):
                       ]
                     }
         response = requests.post('https://dsp-samjhyip.cloud.dreamfactory.com/rest/nextbus2/users',
-                                 auth=(_user, _pass),headers=headers, data=json.dumps(payload),verify=False)
+                                 auth=(_user, _pass), headers=headers, data=json.dumps(payload),verify=False)
         print response.text
         return response
 
