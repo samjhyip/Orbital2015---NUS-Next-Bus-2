@@ -1,0 +1,35 @@
+#Loading Widget
+<LoadingWidget@FloatLayout>:
+	FloatLayout:
+		size_hint: (0.6,None)
+		height: '200dp'
+		pos_hint: {"center_x":0.5,"center_y":0.5} 
+		id: float_widget
+
+		canvas.before:
+			Color: 
+				rgba: (0,0,0,0.6)
+			Rectangle:
+				source: 'data/bg/black_bg.jpg'
+				pos: self.pos
+				size: self.size	
+
+		#Circular Progress Bar
+		Image:
+			source: 'data/giphy_loading.zip' 
+			allow_stretch: True 
+			keep_ratio: True 
+			to_parent: True
+			pos_hint: {"center_x":0.5,"center_y":0.5} 
+			height: '160dp'
+
+		Label:
+			text: '[b]Loading[/b]'
+			id: 'loadlabel' 
+			markup: True
+			size_hint: (1,None)
+			halign: 'center'
+			to_parent: True
+			pos_hint: {"center_x":0.5,"center_y":0.35}
+			height: '30dp'
+			font_size: '25sp'

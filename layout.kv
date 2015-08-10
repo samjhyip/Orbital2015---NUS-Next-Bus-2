@@ -1,0 +1,693 @@
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import ScrollEffect kivy.effects.scroll.ScrollEffect
+
+ScreenManagement:
+	id: screen_management
+	transition: NoTransition()
+	SearchBus:
+		id: searchbusscreen
+	PreferredStops
+	FacebookUI_New_User
+	FacebookUI_Existing_User
+	FacebookUI_PC_New_User
+	AboutScreen
+
+#Footer Layout
+<Footer@GridLayout>:
+	cols:5
+	size_hint: (1, None)
+	height: self.width/4
+	pos_hint: {"x":0,"y":0}
+	SearchButton:
+		id: footer_search_button
+	PreferredStopsButton:
+		id: footer_saved_button
+	AccountSettingsButton:
+		id: footer_accountsettings_button
+	AboutPageButton:
+		id: footer_aboutpage_button
+
+<SearchButton@Button>:
+	text: 'SEARCH'
+	size_hint: (1, 1)
+	on_release:
+		app.root.current = "searchscreen"
+		#or root.manager.current
+	Image:
+		id: footer_search_button_image
+		source: 'data/Searches Folder_active.png'
+		allow_stretch: True
+		keep_ratio: True
+		height: self.parent.height
+		width: self.parent.width
+		x: self.parent.x-((self.width-self.parent.width)/2)
+		y: self.parent.y-((self.height-self.parent.height)/2)		
+
+<PreferredStopsButton@Button>:
+	text: 'SAVED\nBUSES'
+	size_hint: (1, 1)
+	on_release:
+		app.root.current = "preferredstops"
+	Image:
+		id: footer_saved_button_image
+		source: 'data/Save_active.png'
+		allow_stretch: True
+		keep_ratio: True
+		height: self.parent.height
+		width: self.parent.width
+		x: self.parent.x-((self.width-self.parent.width)/2)
+		y: self.parent.y-((self.height-self.parent.height)/2)
+	
+<AccountSettingsButton@Button>:
+	text: 'ACCOUNT'
+	size_hint: (1, 1)
+	on_release:
+		app.root.current = "accountsettings_existing"
+	Image:
+		id: footer_accountsettings_button_image
+		source: 'data/User Accounts active.png'
+		allow_stretch: True
+		keep_ratio: True
+		height: self.parent.height
+		width: self.parent.width
+		x: self.parent.x-((self.width-self.parent.width)/2)
+		y: self.parent.y-((self.height-self.parent.height)/2)
+
+<TestPageButton@Button>:
+	text: 'TEST\nPAGE'
+	size_hint: (1, 1)
+	on_release:
+		app.root.current = "bus1"
+	Image:
+		id: footer_test
+		source: 'data/Troubleshooting_active.png'
+		allow_stretch: True
+		keep_ratio: True
+		height: self.parent.height
+		width: self.parent.width
+		x: self.parent.x-((self.width-self.parent.width)/2)
+		y: self.parent.y-((self.height-self.parent.height)/2)
+
+<AboutPageButton@Button>:
+	text: 'ABOUT\nPAGE'
+	size_hint: (1, 1)
+	on_release:
+		app.root.current = "acknowledgements"
+	Image:
+		id: footer_aboutpage_button_image
+		source: 'data/Troubleshooting_active.png'
+		allow_stretch: True
+		keep_ratio: True
+		height: self.parent.height
+		width: self.parent.width
+		x: self.parent.x-((self.width-self.parent.width)/2)
+		y: self.parent.y-((self.height-self.parent.height)/2)	
+
+
+
+<SearchBus@Screen>:
+	name: "searchscreen"
+	id: searchbusscreen
+	searchbus1: searchbus1.__self__
+	header_placeholder: header_placeholder.__self__
+	search_button_grid: search_button_grid.__self__
+
+	FloatLayout:
+		id: searchbusscreen_floatlayout
+		canvas:
+			Rectangle:
+				source: 'data/bg/body.png'
+				pos: self.pos
+				size: self.size
+
+		#Header
+		GridLayout:
+			id: header
+			size_hint: (1, None)
+			cols: 3
+			height: root.height/9
+			padding: ('15dp','12dp','15dp','12dp')
+			pos_hint: {"top":1,"left":1}
+
+			canvas:
+				Rectangle:
+					source: 'data/bg/header.png'
+					pos: self.pos
+					size: self.size
+
+			#Row 1
+			#Bus Stop No Label
+			Label:
+				id:searchbus1
+				text: '[b]SEARCH BUS STOP[/b]'
+				markup: True
+				size_hint: (0.5, 1)
+				halign: 'left'
+
+			Label:
+				id: header_placeholder
+				size_hint: (0.4, 1)
+
+			#Search Button
+			GridLayout:
+				id: search_button_grid
+				cols: 1
+				size_hint: (0.1, 1)
+				Button:
+					size_hint: (None, None)
+					height: self.parent.height
+					width: self.height
+					background_normal: 'data/search_active.png'
+					background_down: 'data/search_inactive.png'
+					on_release:
+						root.expand_menu()
+						
+		FloatLayout:
+			id: searchscreen_main_body
+			size_hint: (1,None)
+			height: root.height-header.height-footer.height
+			pos_hint: {"center_x":0.5}
+			y: footer.height		
+
+			ScrollView:
+				id: searchscreen_scrollview
+				size_hint: (None,None)
+				size: (root.width, self.parent.height)
+				pos_hint:{'center_x':0.5,'center_y':0.5}
+				#disable scrolling beyong boundaries
+
+				GridLayout:
+					id: searchbusscreen_gridlayout
+					# set GridLayout to be unrestricted vertically
+					size_hint_y: None
+					height: self.minimum_height
+					cols: 1
+					padding: (0,'20dp',0,'20dp')
+					spacing: (0,'10dp')
+
+					#Body
+					GridLayout:
+						id: searchbusscreen_body
+						size_hint_y: None
+						cols: 4
+						height: self.minimum_height
+						padding: (20,20,20,20)				
+					
+						#Row 2
+						#Header: Service No Label
+						Label:
+							text: '[b]Service Number[/b]'
+							size_hint: (0.15,None)
+							height: 60
+							font_size: '12sp'
+							text_size: self.size
+							halign: 'center'
+							valign: 'top'
+							markup: True
+						#Header: Next Bus Label
+						Label:
+							text: '[b]Next Bus[/b]'
+							size_hint: (0.35,None)
+							height: 60
+							font_size: '12sp'
+							text_size: self.size
+							halign: 'center'
+							valign: 'top'
+							markup: True
+						#Header: Subsequent Bus Label
+						Label:
+							text: '[b]Subsequent Bus[/b]'
+							size_hint: (0.35,None)
+							height: 60
+							font_size: '12sp'
+							text_size: self.size
+							halign: 'center'
+							valign: 'top'
+							markup: True
+						Label:
+							text: '[b]Save Bus![/b]'
+							size_hint: (0.15,None)
+							height: 60
+							font_size: '12sp'
+							text_size: self.size
+							halign: 'center'
+							valign: 'top'
+							markup: True				
+		Footer:
+			id: footer
+
+
+<PreferredStops@Screen>:
+	name: 'preferredstops'
+	
+	FloatLayout:
+		id: preferredstops_mainbody
+		canvas.before:
+			Rectangle:
+				source: 'data/bg/body.png'
+				pos: self.pos
+				size: self.size
+
+		#Header
+		GridLayout:
+			id: header
+			size_hint: (1, None)
+			cols: 3
+			height: root.height/9
+			padding: ('12dp','15dp','15dp','12dp')
+			pos_hint: {"top":1,"left":1}
+
+			canvas:
+				Rectangle:
+					source: 'data/bg/header.png'
+					pos: self.pos
+					size: self.size
+
+			Label:
+				text: '[b]SAVED BUSES[/b]'
+				markup: True
+				size_hint: (0.5, 1)
+				halign: 'left'
+			#Placeholder
+			Label:
+				size_hint: (0.6, 1)
+			#Refresh Button
+			Button:
+				size_hint: (None,1)
+				width: self.height
+				text_size: self.size
+				halign: 'right'
+				background_normal: 'data/reload.png'
+				background_down: 'data/reload_down.png'
+				on_release: 
+					root.start_refresh()
+
+		ScrollView:
+			id: preferred_scroll_view
+			size_hint: (None,None)
+			size: (root.width, root.height-footer.height-header.height)
+			pos_hint:{'center_x':0.5}
+			y: footer.height
+
+			do_scroll_y: True
+			scr_val: self.scroll_y
+			on_scroll_y: root.pullToRefresh(self.scr_val)
+
+			GridLayout:
+				id: main_body
+				cols:1
+				size_hint_y: None
+				height: self.minimum_height
+
+				GridLayout:
+					id: preferredstops_body				
+					# set GridLayout to be unrestricted vertically
+					size_hint_y: None
+					height: self.minimum_height
+					cols: 1
+					padding: ('30dp','30dp','30dp','60dp')
+					spacing: (0,root.height*0.1)
+
+	Footer:
+		id: footer
+
+
+<FacebookUI_New_User@Screen>:
+	name: 'accountsettings'
+	
+	#Get Status
+	#id: facebook_status_label
+	#text: root.status_text
+	#markup: True
+	
+	#Get User Info
+	#text: app.user_infos		
+	
+	#Login = app.facebook._open()
+	#Get User info = app.fb_me()
+	
+	FloatLayout:
+		canvas:
+			Rectangle:
+				source: 'data/bg/body.png'
+				pos: self.pos
+				size: self.size	
+		GridLayout:
+			id: accountsettings_socialbuttons
+			cols: 1
+			pos_hint: {"center_x":0.5, "center_y":0.5}
+			size_hint: (0.6,0.5)
+
+			GridLayout:
+				cols:1
+				size_hint: (1, None)
+				height: self.minimum_height
+				padding: (0,0,0,80)
+				Label:
+					text: '[b]Next Bus 2 - Mobile[/b]'
+					font_size: '50sp'
+					height: 60
+					markup: True
+					halign: 'center'
+
+			#Facebook Login Button
+			Button:
+				size_hint: (None, None)
+				#keep image ratio but allow scaling of image
+				height: self.width/4
+				width: self.parent.width
+				background_normal: 'data/fb_button_inactive.png'
+				background_down: 'data/fb_button_active.png'
+				on_release:
+					app.fb_me()
+					app.awaitingUserChangeScreen()
+
+<FacebookUI_PC_New_User@Screen>:
+	name: 'PCaccountsettings'
+	
+	#Get Status
+	#id: facebook_status_label
+	#text: root.status_text
+	#markup: True
+	
+	#Get User Info
+	#text: app.user_infos		
+	
+	#Login = app.facebook._open()
+	#Get User info = app.fb_me()
+	
+	FloatLayout:
+		canvas:
+			Rectangle:
+				source: 'data/bg/body.png'
+				pos: self.pos
+				size: self.size	
+		GridLayout:
+			id: accountsettings_socialbuttons
+			cols: 1
+			pos_hint: {"center_x":0.5, "center_y":0.5}
+			size_hint: (0.6,0.5)
+
+
+			Label:
+				text: '[b]Next Bus 2 - PC[/b]'
+				font_size: '50sp'
+				height: '100dp'
+				markup: True
+				halign: 'center'
+
+			TextInput:
+				id: txtInputAccountnumber
+				size_hint: (1, None)
+				height: '60dp'
+				hint_text: 'Enter your account number here'
+			Button:
+				id: btnSubmit
+				size_hint: (1, None)
+				height: 60
+				text: 'Login'
+				on_release:
+					root.btnLoginPress(txtInputAccountnumber.text)
+			Button:
+				id: btnSkip
+				text: 'Use without an account!'
+				size_hint: (1, None)
+				height: 60
+				on_release:
+					app.root.current = "searchscreen"
+
+
+
+<FacebookUI_Existing_User@Screen>:
+	name: 'accountsettings_existing'
+	FloatLayout:
+		canvas:
+			Rectangle:
+				source: 'data/bg/body.png'
+				pos: self.pos
+				size: self.size
+		FloatLayout:
+			height: root.height-footer.height
+			size_hint: (1,None)
+			to_parent: True
+			pos_hint: {"center_x":0.5}
+			y: footer.height
+			
+			FloatLayout:
+				to_parent: True
+				pos_hint: {"center_x":0.5, "center_y":0.5}
+				size_hint: (0.8,0.8)
+
+				canvas:
+					Rectangle:
+						source: 'data/bg/each_label.png'
+						pos: self.pos
+						size: self.size
+
+				GridLayout:
+					cols: 1
+					to_parent: True
+					pos_hint: {"center_x":0.5, "center_y":0.5}
+					size_hint: (0.8,0.8)
+					spacing: (0,'20dp')
+
+					Label:
+						text: '[b]Settings[/b]'
+						font_size: '40sp'
+						markup: True
+						size_hint: (1,None)
+						height: '50dp'
+						padding_y: '20dp'
+
+					Button:
+						text: 'Reset Preferences'
+						font_size: '20sp'
+						size_hint: (1,None)
+						height: '40dp'
+						on_release:
+							root.launchPopup('Reset')
+			
+					Button:
+						text: 'Logout'
+						font_size: '20sp'
+						size_hint: (1,None)
+						height: '40dp'
+						on_release: 
+							root.launchPopup('Logout')
+					Label:
+						text: '[b]You Account ID is:[/b]'
+						markup: True
+						size_hint: (1,None)
+						height: '40dp'
+					Label: 
+						id: labelAccountID
+						text: app._facebookid
+						size_hint: (1,None)
+						height: '40dp'
+
+		Footer
+			id: footer
+
+
+<AboutScreen@Screen>:
+	name: 'acknowledgements'
+	FloatLayout:
+		canvas:
+			Rectangle:
+				source: 'data/bg/body.png'
+				pos: self.pos
+				size: self.size
+
+		FloatLayout:
+			to_parent: True
+			pos_hint: {"center_x":0.5, "center_y":0.6}
+			size_hint: (0.8,None)
+			height: (root.height-footer.height)*0.5
+
+			canvas:
+				Rectangle:
+					source: 'data/bg/each_label.png'
+					pos: self.pos
+					size: self.size
+
+			GridLayout:
+				cols: 1
+				to_parent: True
+				pos_hint: {"center_x":0.5, "center_y":0.5}
+				size_hint: (0.6,0.6)
+				spacing: (0,'30dp')
+
+				Label:
+					text: '[b]NUS Next Bus 2[/b]\nCreated by Samjhyip\nsamuel_yip_jh@u.nus.edu\ngithub.com/samjhyip\nSpecially made for\nOrbital Programme 2015'
+					markup: True
+					halign: 'justify'
+				
+				Label:
+					text: '[b]Written in Python\nDesigned with Kivy[/b]'
+					markup: True
+	Footer
+		id: footer
+
+
+#Testing Only
+<BusTimingScreen@Screen>:
+	name: "bus1"
+
+
+	Footer
+
+
+#Miscellaneous Widgets
+
+#Loading Widget
+<LoadingWidget@FloatLayout>:
+	float_widget: float_widget.__self__
+	FloatLayout:
+		size_hint: (0.6,None)
+		height: '200dp'
+		pos: (root.center_x-self.width/2, app.root.center_y-self.height/2) 
+		id: float_widget
+
+		canvas.before:
+			Color: 
+				rgba: (0,0,0,0.6)
+			Rectangle:
+				source: 'data/bg/black_bg.jpg'
+				pos: self.pos
+				size: self.size	
+
+		#Circular Progress Bar
+		Image:
+			source: 'data/giphy_loading.zip' 
+			allow_stretch: True 
+			keep_ratio: True 
+			to_parent: True
+			pos_hint: {"center_x":0.5,"center_y":0.5} 
+			height: '160dp'
+
+		Label:
+			text: '[b]Loading[/b]'
+			id: 'loadlabel' 
+			markup: True
+			size_hint: (1,None)
+			halign: 'center'
+			to_parent: True
+			pos_hint: {"center_x":0.5,"center_y":0.35}
+			height: '30dp'
+			font_size: '25sp'	
+
+#Saving Widget
+<SavingWidget@FloatLayout>:
+	float_widget: float_widget.__self__
+	FloatLayout:
+		size_hint: (0.6,None)
+		height: '200dp'
+		pos: (root.center_x-self.width/2, root.center_y) 
+		id: float_widget
+
+		canvas.before:
+			Color: 
+				rgba: (0,0,0,0.6)
+			Rectangle:
+				source: 'data/bg/black_bg.jpg'
+				pos: self.pos
+				size: self.size	
+
+		#Circular Progress Bar
+		Image:
+			source: 'data/giphy_loading.zip' 
+			allow_stretch: True 
+			keep_ratio: True 
+			to_parent: True
+			pos_hint: {"center_x":0.5,"center_y":0.5} 
+			height: '160dp'
+
+		Label:
+			text: '[b]Saving[/b]'
+			id: 'savedlabel' 
+			markup: True
+			size_hint: (1,None)
+			halign: 'center'
+			to_parent: True
+			pos_hint: {"center_x":0.5,"center_y":0.35}
+			height: '30dp'
+			font_size: '25sp'
+
+#Deleting Widget
+<DeletingWidget@FloatLayout>:
+	float_widget: float_widget.__self__
+	FloatLayout:
+		size_hint: (0.6,None)
+		height: '200dp'
+		pos: (root.center_x-self.width/2, root.center_y) 
+		id: float_widget
+
+		canvas.before:
+			Color: 
+				rgba: (0,0,0,0.6)
+			Rectangle:
+				source: 'data/bg/black_bg.jpg'
+				pos: self.pos
+				size: self.size	
+
+		#Circular Progress Bar
+		Image:
+			source: 'data/giphy_loading.zip' 
+			allow_stretch: True 
+			keep_ratio: True 
+			to_parent: True
+			pos_hint: {"center_x":0.5,"center_y":0.5} 
+			height: '160dp'
+
+		Label:
+			text: '[b]Deleting[/b]'
+			id: 'deletedlabel' 
+			markup: True
+			size_hint: (1,None)
+			halign: 'center'
+			to_parent: True
+			pos_hint: {"center_x":0.5,"center_y":0.35}
+			height: '30dp'
+			font_size: '25sp'
+
+<AskUser@RelativeLayout>:
+    Label:
+        text_size: (self.width, self.height)
+        # font sizes based on avg of height and width
+        font_size: (self.width + self.height) / 2.0 * 0.07
+        text: root.text
+        size_hint: (0.9, 0.6)
+        pos_hint: {'x' : 0.05, 'y' : 0.475}
+        text_size: self.size
+    Button:
+        text: root.action_name
+        size_hint: (0.425, 0.3)
+        pos_hint: {'x' : 0.525, 'y': 0.025}
+        on_press: root.answer(True)
+        font_size: self.height * 0.34
+    Button:
+        text: 'Cancel'
+        size_hint: (0.425, 0.3)
+        pos_hint: {'x' : 0.05, 'y': 0.025}
+        on_press: root.answer(False)
+        font_size: self.height * 0.34
+
+<askConfirmation@RelativeLayout>:
+	Label:
+		id: labelText
+		text: ''
+		to_parent: True
+		size_hint: (0.8,0.2)
+		pos_hint: {"center_x":0.5,"center_y":0.6}
+	Button:
+		id: btnYes
+		text: "Yes"
+		to_parent: True
+		size_hint: (0.425, 0.3)
+		pos_hint: {"bottom":1,"left":1}
+	Button:
+		id: btnDismiss
+		text: "Cancel"
+		to_parent: True
+		size_hint: (0.425, 0.3)
+		pos_hint: {"bottom":1,"right":1}
