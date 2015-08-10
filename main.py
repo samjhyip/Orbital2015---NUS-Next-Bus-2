@@ -296,11 +296,12 @@ class SearchBus(Screen):
 			self.each_bus_instance = EachBus(self._busstopnoinput, eachbus['ServiceNo'])			
 			self.eachbuswidget = self.each_bus_instance.getEachBusGridLayoutWidget()
 
-			#Append each label and checkbox to current screen
-			for eachlabel in alllabels:
-				self.current_labels.append(eachlabel)
-				self.add_widget(eachlabel)
-			
+			#append to the current_labels list
+			self.current_labels.append(self.eachbuswidget)
+
+			#append to the Parent Layout
+			self.ids['searchbusscreen_gridlayout'].add_widget(self.eachbuswidget)
+		
 			#Checkbox::Binds the Boolean Property 'active' to self.on_checkbox_active()		
 			alllabels[5].bind(active=partial(self.on_checkbox_active, each_bus_instance.getServiceNo(), each_bus_instance.getBusStopID(), alllabels[5]))
 
