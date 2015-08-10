@@ -532,19 +532,24 @@ class EachBus():
 		try:
 			#Creates a GET request instance
 			self.busInstance = datamall.BusInfo(self._busstopid,self._serviceno)
+			#Gets Data
 			self.busInstance.scrapeBusInfo()
-			dateTime = self.busInstance.getSubsequentTiming()
-			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
+			dateTime = getattr(self.busInstance, which_bus_timing[which_bus])()
+			#Finds the time	
+			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+', dateTime)
 			#grabTime[0]==date #grabTime[1]==time(UTC)
 			timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
 			timeLeft = re.split(r'\D',str(timedelta))
-			if dateTime:
+			if dateTime:	 
 				#timeLeft[0] can return null at times
 				if not (timeLeft[0]):
-					timeLeft[0]=0	
-				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
-		except TypeError:	
-			return busServiceEnded
+					timeLeft[0]=0
+				#return minutes and seconds
+				#return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
+				#return minutes only
+				return '%s mins' %(str(int(timeLeft[0])*60+int(timeLeft[1])))
+		except TypeError as e:
+			return BUS_SERVICE_ENDED
 
 	#Gets Bus Stop ID and Service number that is in request
 	def getBusStopID(self):
