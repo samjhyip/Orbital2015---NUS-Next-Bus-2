@@ -1045,7 +1045,7 @@ class AskUser(RelativeLayout):
                 self._callback(yesno)
             Clock.schedule_once(delay_me, 0.1)
 
-class FacebookUI(Screen):
+class FacebookUI_New_User(Screen):
     ''' Seems like there was a bug in the kv that wouldn't bind on 
     app.facebook.status, but only on post_status '''
 
@@ -1312,10 +1312,10 @@ class NUSNextBus(App):
 
 	#non-nus buses = requires bus stop and bus information
 	def savePreferredBus(self):
-		pass	
+		pass
 
 	def savePreferredNUSBusstop(self):
-		pass
+		pass	
 
 	def _toast(self, text, length_long=False):
 		toast.toast(text, length_long)
