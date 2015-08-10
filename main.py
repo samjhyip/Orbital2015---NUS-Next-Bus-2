@@ -491,6 +491,24 @@ class EachBus():
 				saved_status=True
 		self.savebuscheckbox = CheckBox(size_hint=(0.1,0.1), pos_hint={"x":0.85, "y":(0.725-row*0.1)}, active=saved_status)
 
+		self.savebuscheckbox = CheckBox(
+			size_hint=(0.15,None), 
+			active=saved_status, 
+			height='30dp',
+			background_checkbox_normal='data/checkbox_disabled_down.png',
+			background_checkbox_down='data/checkbox_down.png',
+			background_checkbox_disabled_normal='data/checkbox_disabled_normal.png',
+			background_checkbox_disabled_down='data/checkbox_normal.png'
+			)
+		#dummy labels to fill up GridLayout's column 1 and 4
+		self.dummylabel1 = Label(
+			size_hint=(0.15,None), 
+			height=90
+			)
+		self.dummylabel2 = Label(
+			size_hint=(0.15,None), 
+			height=90
+			)
 
 	def getNextBusTime(self):
 		try:
