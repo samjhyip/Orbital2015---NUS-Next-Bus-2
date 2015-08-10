@@ -59,10 +59,6 @@ class DateTimeInfo():
 		return datetime.datetime.utcnow().strftime("%H:%M:%S")
 
 
-class MainScreen(Screen):
-	def do_someaction(self):
-		return 'Button Pressed!'
- 
 class SearchBus(Screen):
 	current_labels=[]
 	loading_widget_collector=[]
