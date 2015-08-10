@@ -236,16 +236,45 @@ class SearchBus(Screen):
 		self.searchUserInput()
 
 	#Gets user input from the text fields busStopNoInput & busNoInput
-	def getUserInput(self):
-		self._busstopnoinput = self.ids['busStopNoInput'].text
+	def getUserInput(self, *args):
 		self._busnoinput = ''
 
-	def searchUserInput(self):
+		#If search value is a number
+		if self.header_textinput.text.isdigit():
+			self._busstopnoinput = self.header_textinput.text
+		#if the string is not a digit
+		else:
+			response_busstopcode = app.datamall_bus_stop.searchBusStopCode(self.header_textinput.text)
+			#if response is not None
+			if response_busstopcode:
+				self._busstopnoinput = response_busstopcode
+			#not a valid bus stop. Are we gonna let it carry on first?
+			else:
+				self._busstopnoinput = self.header_textinput.text
+
+
+	def searchUserInput(self, *args):
 		#Instantiates a connection to datamall API
 		#Bus 911 @ a working bus stop: 46429,911/83139
-		app._toast('Searching for {}'.format(self._busstopnoinput))
-		#Gets list of all bus services in operation		
-		busservices = datamall.BusInfo(self._busstopnoinput,self._busnoinput).getallServices()
+		app._toast('Searching for Bus Stop {}'.format(self._busstopnoinput))
+
+		#Gets list of all bus services in operation	
+		allbuses_instance = datamall.BusInfo(self._busstopnoinput, self._busnoinput)
+		
+		#Valid Bus Stop Check?
+		if allbuses_instance.response.status == 200:
+	
+			self.busservices = allbuses_instance.getallServices()
+
+			#Removes existing labels, (if any)
+			if self.current_labels:
+				for _eachbuswidget in self.current_labels:
+					self.ids['searchbusscreen_gridlayout'].remove_widget(_eachbuswidget)
+
+			#Displays Loading widget
+			loading_widget = LoadingWidget()
+			self.ids['searchscreen_main_body'].add_widget(loading_widget)
+			self.loading_widget_collector.append(loading_widget)
 
 		#Removes existing labels, (if any) using label ref
 		if self.current_labels:
