@@ -128,12 +128,35 @@ class DeleteDBInfo(object):
                       ]
                     }
         response = requests.delete('https://dsp-samjhyip.cloud.dreamfactory.com/rest/nextbus2/'+str(tables),
-                                 auth=(_user, _pass),headers=headers, data=json.dumps(payload),verify=False)
+                                 auth=(_user, _pass), headers=headers, data=json.dumps(payload),verify=False)
         print response.text
         return response
 
+        #User unticks a bus to delete bus
+    def deleteUserSavebusRecords(self, busno, busstopNo, users_facebook_ID):
+        headers = {'X-DreamFactory-Application-Name' : 'nextbus2'}
+        payload = {"record": [
+                {"busno": str(busno),
+                "busstopNo": str(busstopNo),
+                "Users_facebook_ID": str(users_facebook_ID)
+                        }
+                    ]
+                }
+        response = requests.delete('https://dsp-samjhyip.cloud.dreamfactory.com/rest/nextbus2/SavedBuses',
+                                 auth=(_user, _pass), headers=headers, data=json.dumps(payload),verify=False)
+    	print response.text
+        Logger.info('deleteUserSavebusRecord {}'.format(response.text))
+    	return response 
 
-#ob1 = GetDBInfo().requestInfo('buses')
-#ob1 = PostDBInfo().createBusTableRecords('999e')
-#ob1 = DeleteDBInfo().deleteTableRecords()
-#print GetDBInfo().requestRecordByIdentifier('Users',96)
+    def deleteAllUserRecords(self, users_facebook_ID):
+        headers = {'X-DreamFactory-Application-Name' : 'nextbus2'}
+
+        url = 'https://dsp-samjhyip.cloud.dreamfactory.com/rest/nextbus2'
+        path = '/SavedBuses?'
+        params = {'filter': str(users_facebook_ID)}
+        target = urlparse(url+path+urllib.urlencode(params))
+
+        response = requests.delete(target.geturl(),
+                              auth=(_user, _pass),headers=headers, verify=False)
+        Logger.info('deleteUserSavebusRecord {}'.format(response.text))
+        return response
