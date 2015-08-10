@@ -303,7 +303,56 @@ class SearchBus(Screen):
 			self.ids['searchbusscreen_gridlayout'].add_widget(self.eachbuswidget)
 		
 			#Checkbox::Binds the Boolean Property 'active' to self.on_checkbox_active()		
-			alllabels[5].bind(active=partial(self.on_checkbox_active, each_bus_instance.getServiceNo(), each_bus_instance.getBusStopID(), alllabels[5]))
+			self.each_bus_instance.getLabels()[3].bind(active=partial(self.on_checkbox_active, self.each_bus_instance.getServiceNo(), self.each_bus_instance.getBusStopID(), self.each_bus_instance.getLabels()[3]))
+
+		#Each bus's canvas instructions for loading texture
+		for _eachbuswidget in self.current_labels:
+			with _eachbuswidget.canvas.before:
+				#Tints and opacity can be achieved!
+				_eachbuswidget.canvas.opacity = 0.9
+				thiscanvasrect = Rectangle(pos=_eachbuswidget.pos, size=_eachbuswidget.size, source='data/bg/each_label.png')
+
+				#http://kivy.org/planet/2014/10/updating-canvas-instructions-declared-in%C2%A0python/
+				#on pos or size change of the GridLayout, update the position of the canvas as well!
+				_eachbuswidget.bind(pos=partial(self.update_label_canvas, _eachbuswidget, thiscanvasrect), size=partial(self.update_label_canvas, _eachbuswidget, thiscanvasrect))
+
+		#enables main body again
+		self.isScreenDisabled = False
+
+		'''
+		#show current bus stop name in search
+		busstopnamelabel = Label(
+			text=self.this_busstopname,
+			size_hint=(1,None),
+			height='60dp',
+			font_size='16sp'
+			)
+
+		self.current_labels.append(busstopnamelabel)
+		self.ids['searchbusscreen_gridlayout'].add_widget(busstopnamelabel)
+		'''
+
+	def update_label_canvas(self, thisbuswidget, thiscanvasrect, *args):
+		thiscanvasrect.pos = thisbuswidget.pos
+		thiscanvasrect.size = thisbuswidget.size
+
+	def retrievePreferredStops(self, *args):
+		#If records not retrieved
+		if not app.isRecordRetrieved:
+			#Get user preferences (saved buses). Will exit thread if user is not logged in
+			thread1 = Thread(target=app.getUserSaveBusRecords,args=()).start()
+		#thread2 starts even before thread 1 is done (if thread1 is executed)
+		thread2 = Thread(target=self.check_UserSaveBusRecords_if_exists,args=()).start()
+
+
+	def check_UserSaveBusRecords_if_exists(self,*args):
+		#Still retrieving records (only if logged in)
+		if app._facebookid:
+			while not app.isRecordRetrieved:
+				time.sleep(1)
+		#Retrieval done
+		Clock.schedule_once(self.create_bus_instance_widgets, 0)
+
 
 	def on_checkbox_active(self, _serviceno, _busstopid, _labelref, *args):
 		#If logged in and has checked this bus		
