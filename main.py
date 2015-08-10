@@ -1063,6 +1063,40 @@ class FacebookUI(Screen):
             app.post_status)
 
 
+
+class FacebookUI_PC_New_User(Screen):
+	facebook_id = ""
+	isvalidUser = False
+
+	def btnLoginPress(self, facebook_id):
+		self.facebook_id = facebook_id
+		#saveFacebookInfothread = Thread(target=self.validate_id,args=()).start()
+		self.validate_id()
+
+	def validate_id(self, *args):
+		response = datadb.GetDBInfo().getUser(self.facebook_id)
+		if (response==200):
+			self.login_success(response)
+		else: 
+			self.login_fail()
+
+	def login_success(self, response):
+		app._facebookid = facebook_id
+		app._firstname = response['record']['firstname']
+		app._lastname = response['record']['lastname']
+		app.root_widget.current = 'searchscreen'
+		Clock.schedule_once(app._toast('Welcome Back {} {}!'.format(app._firstname, app._lastname)),0)
+
+	def login_fail(self):
+		Clock.schedule_once(app._toast('This is an invalid account ID. Please sign up using the mobile app'),0)
+
+class AboutScreen(Screen):
+	def on_pre_enter(self, *args):
+		#Update Footer Buttons on enter
+		self.ids['footer'].ids['footer_aboutpage_button'].ids['footer_aboutpage_button_image'].source = 'data/Troubleshooting_inactive.png'
+
+
+
 class ModalCtl:
     ''' just a container for keeping track of modals and implementing
     user prompts.'''
