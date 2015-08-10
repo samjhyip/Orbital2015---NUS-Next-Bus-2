@@ -370,10 +370,18 @@ class SearchBus(Screen):
 			#app._toast('Saving. Don\'t quit the app!')
 		#If logged in and has unchecked this bus
 		elif app._facebookid and not _labelref.active == True:
+			#show deleting widget
+			deleting_widget = DeletingWidget()
+			self.ids['searchscreen_main_body'].add_widget(deleting_widget)
+			self.loading_widget_collector.append(deleting_widget)
+			self.isScreenDisabled = True
+
 			#updates mySQL DB
+			thread = Thread(target=self.deleteUserSaveBusRecords, args=(_serviceno, _busstopid, _labelref)).start()
 			app.all_saved_busstopNo.remove(_busstopid)
 			app.all_saved_busno.remove(_serviceno)
-			app._toast('Deleted!')
+			#app._toast('Deleting. Don\'t quit the app!')
+
 		elif not app._facebookid:
 			_labelref.active = False
 			app._toast('Please login into Facebook first')
