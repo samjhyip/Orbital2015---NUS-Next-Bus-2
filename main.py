@@ -9,21 +9,35 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.clock import Clock
-from kivy.properties import StringProperty, ObjectProperty, BooleanProperty
+from kivy.properties import StringProperty, ObjectProperty, BooleanProperty, NumericProperty
 from kivy.logger import Logger
 from kivy.uix.popup import Popup
 from kivy import platform
 from kivy.uix.checkbox import CheckBox
+from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.image import Image
+from kivy.uix.textinput import TextInput
+from kivy.adapters.listadapter import ListAdapter
+from kivy.uix.listview import ListView, ListItemButton
+from kivy.effects.scroll import ScrollEffect
+from kivy.metrics import dp
+from kivy import platform
+
+#Graphics
+from kivy.graphics import *
 
 #Python Native
 from functools import partial
 from threading import Thread
 import datetime
+import time
 import re
 
 #Imported Source Files
+import userprofile
 import datamall
+import datamall_bus_stop
 import datadb
 import netcheck
 import toast
@@ -394,6 +408,10 @@ class SearchBus(Screen):
 		response = datadb.PostDBInfo().createUserSaveBusRecords(_serviceno, _busstopid, app._facebookid)
 		#Logger.info('Saving the User\'s preference' + str(response))
 
+		#We have a response from the POST request
+		save_complete_status_code = response.status_code
+		self.saveCompleted(save_complete_status_code)
+
 	def deleteUserSaveBusRecords(self, _serviceno, _busstopid, _labelref, *args):
 		#Deletes a UserSaveBusRecord
 		response = datadb.DeleteDBInfo().deleteUserSavebusRecords(_serviceno, _busstopid, app._facebookid)
@@ -530,7 +548,6 @@ class EachBus():
 		#which_bus can be either getNextTiming or getSubsequentTiming
 		which_bus_timing = ['getNextTiming', 'getSubsequentTiming']
 
-	def getSubsequentBusTime(self):
 		try:
 			#Creates a GET request instance
 			self.busInstance = datamall.BusInfo(self._busstopid,self._serviceno)
@@ -1244,7 +1261,7 @@ class NUSNextBus(App):
 	
 	#Allows for this app to be resumed after Facebook authorisation is completed
 	def on_resume(self):
-		pass
+		pass	
 
 	def fb_me(self):
 		def callback(success, user=None, response=None, *args):
@@ -1324,7 +1341,7 @@ class NUSNextBus(App):
 
 	#non-nus buses = requires bus stop and bus information
 	def savePreferredBus(self):
-		pass	
+		pass
 
 	def savePreferredNUSBusstop(self):
 		pass
@@ -1341,6 +1358,7 @@ class NUSNextBus(App):
 			for each_bus_saved in response['record']:
 				self.all_saved_busstopNo.append(each_bus_saved['busstopNo'])
 				self.all_saved_busno.append(each_bus_saved['busno'])
+			self.isRecordRetrieved = True
 
 if __name__=="__main__":
 	NUSNextBus().run()
