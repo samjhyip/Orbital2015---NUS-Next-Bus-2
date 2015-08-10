@@ -1,7 +1,7 @@
 [app]
 
 # (str) Title of your application
-title = Bus_Time
+title = Next Bus 2
 
 # (str) Package name
 package.name = facebook
