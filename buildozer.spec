@@ -16,7 +16,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,csv,zip
 
 # (list) Source files to exclude (let empty to not exclude anything)
-#source.exclude_exts = spec
+source.exclude_exts = spec,txt
 
 # (list) List of directory to exclude (let empty to not exclude anything)
 source.exclude_dirs = tests, bin
@@ -29,11 +29,11 @@ source.exclude_dirs = tests, bin
 #version.filename = %(source.dir)s/main.py
 
 # (str) Application versioning (method 2)
-version = 1.2.0
+version = 1.2.3
 
 # (list) Application requirements
 # comma seperated e.g. requirements = sqlite3,kivy
-requirements = kivy
+requirements = openssl,kivy
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -43,13 +43,13 @@ requirements = kivy
 #garden_requirements =
 
 # (str) Presplash of the application
-#presplash.filename = %(source.dir)s/data/presplash.png
+presplash.filename = %(source.dir)s/data/orbital.jpg
 
 # (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+icon.filename = %(source.dir)s/data/icon.jpg
 
 # (str) Supported orientation (one of landscape, portrait or all)
-orientation = landscape
+orientation = portrait
 
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 1
@@ -60,7 +60,7 @@ fullscreen = 1
 #
 
 # (list) Permissions
-android.permissions =INTERNET,ACCESS_NETWORK_STATE
+android.permissions =INTERNET,ACCESS_NETWORK_STATE,WAKE_LOCK
 
 # (int) Android API to use
 android.api = 14
@@ -87,7 +87,7 @@ android.ndk = 9c
 #android.p4a_dir =
 
 # (list) python-for-android whitelist
-#android.p4a_whitelist =
+android.p4a_whitelist = csv
 
 # (str) Android entry point, default is ok for Kivy-based app
 #android.entrypoint = org.renpy.android.PythonActivity
@@ -124,14 +124,14 @@ android.ndk = 9c
 
 # (bool) Indicate whether the screen should stay on
 # Don't forget to add the WAKE_LOCK permission if you set this to True
-#android.wakelock = False
+android.wakelock = True
 
 # (list) Android application meta-data to set (key=value format)
 #android.meta_data =
 
 # (list) Android library project to add (will be added in the
 # project.properties automatically.)
-android.library_references = ../../Desktop/facebook-android-sdk-3.0.2/facebook
+android.library_references = ../../Desktop/facebook-android-sdk-3.23.1/facebook
 
 #
 # iOS specific
