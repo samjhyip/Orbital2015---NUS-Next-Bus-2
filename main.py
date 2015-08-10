@@ -438,7 +438,9 @@ class SearchBus(Screen):
 #Contains the instance for Each bus
 class EachBus():
 	#Creates all the labels upon initialization
-	def __init__(self, _busstopid, _serviceno, row):
+	#disable size hint for height because of the ScrollView
+	#size hint for width is still available
+	def __init__(self, _busstopid, _serviceno, *args):
 		self._busstopid = _busstopid
 		self._serviceno = _serviceno
 		#creates the nextbustime instance
@@ -490,7 +492,6 @@ class EachBus():
 		if app.all_saved_busstopNo and app.all_saved_busno:
 			if (self._busstopid,self._serviceno) in zip(app.all_saved_busstopNo, app.all_saved_busno):
 				saved_status=True
-		self.savebuscheckbox = CheckBox(size_hint=(0.1,0.1), pos_hint={"x":0.85, "y":(0.725-row*0.1)}, active=saved_status)
 
 		self.savebuscheckbox = CheckBox(
 			size_hint=(0.15,None), 
@@ -1312,10 +1313,10 @@ class NUSNextBus(App):
 
 	#non-nus buses = requires bus stop and bus information
 	def savePreferredBus(self):
-		pass
+		pass	
 
 	def savePreferredNUSBusstop(self):
-		pass	
+		pass
 
 	def _toast(self, text, length_long=False):
 		toast.toast(text, length_long)
