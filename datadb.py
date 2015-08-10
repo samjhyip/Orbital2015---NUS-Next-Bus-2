@@ -51,19 +51,29 @@ class GetDBInfo(object):
     def requestSavedBusRecord(self, _id_field):
         headers = {'X-DreamFactory-Application-Name' : 'nextbus2'}
 	
-	url = 'https://dsp-samjhyip.cloud.dreamfactory.com/rest/nextbus2'
-	path = '/SavedBuses?'
-	params = {'filter': str(_id_field)}
-	target = urlparse(url+path+urllib.urlencode(params))
+        url = 'https://dsp-samjhyip.cloud.dreamfactory.com/rest/nextbus2'
+        path = '/SavedBuses?'
+        params = {'filter': str(_id_field)}
+        target = urlparse(url+path+urllib.urlencode(params))
 
         response = requests.get(target.geturl(),
                               auth=(_user, _pass),headers=headers, verify=False)
 	
         #print data
         Logger.info('requestRecordByIdentifier: {}'.format(response))
-	data = response.json()		
-	return data
+        data = response.json()
+        return data
 
+    def getUser(self, facebook_ID):
+        headers = {'X-DreamFactory-Application-Name' : 'nextbus2'}
+        url = 'https://dsp-samjhyip.cloud.dreamfactory.com/rest/nextbus2'
+        path = '/users?'
+        params = {'ids': str(facebook_ID)}
+        target = urlparse(url+path+urllib.urlencode(params))
+
+        response = requests.get(target.geturl(),
+                              auth=(_user, _pass),headers=headers, verify=False)
+        Logger.info('getUser {}'.format(response.text))
 
 
 class PostDBInfo(object):
