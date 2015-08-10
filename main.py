@@ -1145,7 +1145,18 @@ class ModalCtl:
 
 class ScreenManagement(ScreenManager):
 	pass
+	
+class LoadingWidget(FloatLayout):
+	def __init__(self, *args):
+		super(LoadingWidget, self).__init__(*args)
 
+class SavingWidget(FloatLayout):
+	def __init__(self, *args):
+		super(SavingWidget, self).__init__(*args)
+
+class DeletingWidget(FloatLayout):
+	def __init__(self, *args):
+		super(DeletingWidget, self).__init__(*args)
 
 
 class NUSNextBus(App):
