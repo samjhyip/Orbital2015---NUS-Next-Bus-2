@@ -16,13 +16,14 @@ import json
 #GUID
 #687ef57c-810a-414a-b0f8-df4b78bf9ef6
 
+#Fb id example:884587561622028
 
 #BUS ARRIVAL API
 #API URL: http://datamall2.mytransport.sg/ltaodataservice/BusArrival
 
 
-_user='guest@samjhyip.com'
-_pass='guest'
+_user='DREAMFACTORY USERNAME HERE'
+_pass='DREAMFACTORY PASSWORD HERE'
 
 
 class GetDBInfo(object):
