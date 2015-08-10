@@ -1160,14 +1160,19 @@ class ScreenManager(App):
 		global app
 		app = self
 		#Creating presentation retains an instance that we can reference to
-		presentation = Builder.load_file("screenmanager12.kv")
-		return presentation
+		root_widget = Builder.load_file("layout.kv")
+		#Saves a Reference of the Screen Manager
+		self.root_widget = root_widget
+		return root_widget
 	
 	def on_start(self):
 
+		'''
+		Load Modules required for Facebook Login
+		'''
 		self.facebook = Facebook(FACEBOOK_APP_ID,permissions=['publish_actions', 'basic_info'])
 		#Sets up the AskUser() and PopUp() to ask for connection
-		global modal_ctl
+		global modal_ctlon_start
 		modal_ctl = ModalCtl()
 		#Define callback as modal_ctl.ask_connect()
 		netcheck.set_prompt(modal_ctl.ask_connect)
