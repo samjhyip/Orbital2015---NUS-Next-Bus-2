@@ -503,7 +503,382 @@ class EachBus():
 
 
 class PreferredStops(Screen):
-	pass
+
+	#For widget 'garbage collection'
+	widget_garbage_collector = []
+	loading_widget_collector = []
+
+	#Show 'PULL DOWN TO REFRESH?' Boolean
+	showInstruction = BooleanProperty(False)
+	is_reloading = False
+	is_firstload = True
+
+	isScreenDisabled = BooleanProperty(False)
+
+	def on_pre_enter(self, *args):
+		#Update Footer Buttons on enter
+		self.ids['footer'].ids['footer_saved_button'].ids['footer_saved_button_image'].source = 'data/Save_inactive.png'
+		#auto load on open
+		if self.is_firstload:
+			self.startFirstSearch()
+			self.is_firstload = False
+
+	def on_isScreenDisabled(self, *args):
+		if self.isScreenDisabled:
+			self.ids['preferredstops_mainbody'].disabled = True
+		else:
+			self.ids['preferredstops_mainbody'].disabled = False
+
+
+	#Defines the behaviour of the Search Button 
+	def startFirstSearch(self, *args):
+		loadingwidget = LoadingWidget()
+		#On first run, display the loading widget while we retrieve data
+		self.ids['preferredstops_mainbody'].add_widget(loadingwidget)
+		self.loading_widget_collector.append(loadingwidget)
+		#Disable 
+		self.isScreenDisabled=True
+		#Starts the widget creation process
+		self.createPreferredStops()
+
+	#Because the GET requests are significantly slow, we use threads to prevent the UI from being unresponsive
+	#We use these threads to schedule the widgets to be displayed once all the GET retrievals are completed
+	#Event Dispatcher will subsequently run the callback functions to display the widgets
+	def createPreferredStops(self, *args):
+		#If records have not been retrieved or if user has no saved buses
+		if not app.all_saved_busstopNo and not app.all_saved_busno:
+			#Get user preferences (saved buses)
+			self.isthread1_done = False
+			thread1 = Thread(target=self.getUserSaveBusRecords,args=()).start()
+		#If records have already been retrieved and saved locally
+		if app.all_saved_busstopNo and app.all_saved_busno:
+			self.isthread1_done = True
+		#Checks if thread 1 is done. If done, create the preference instances
+		thread2 = Thread(target=self.checkUserSaveBusRecords_if_exist,args=()).start()
+
+	#Displays all the saved widgets				
+	def showPreferredStops(self, *args):
+		#If existing records exist
+		if app.all_saved_busstopNo and app.all_saved_busno:
+			for each_saved_busstopNo,each_saved_busno in zip(app.all_saved_busstopNo, app.all_saved_busno):
+				eachSavedPreference_instance = EachSavedPreference(each_saved_busstopNo, each_saved_busno)
+				#Add the GridLayout to the ScrollView				
+				self.ids['preferredstops_body'].add_widget(eachSavedPreference_instance.getGridLayout())
+				#Saves the reference of each GridLayout so that we can remove later
+				self.widget_garbage_collector.append(eachSavedPreference_instance.getGridLayout())
+
+			#Another loop to create the canvas for each entry
+			for _each_saved_widget in self.widget_garbage_collector:
+				with _each_saved_widget.canvas.before:
+					_each_saved_widget.canvas.opacity = 0.9
+					thiscanvasrect = Rectangle(
+						pos=_each_saved_widget.pos, 
+						size=_each_saved_widget.size, 
+						source='data/bg/each_label.png'
+						) 
+					_each_saved_widget.bind(
+						pos=partial(self.update_canvas, _each_saved_widget, thiscanvasrect),
+						size=partial(self.update_canvas, _each_saved_widget, thiscanvasrect)
+						)
+
+		#if no records exists, do something
+
+	def update_canvas(self, thiswidget, thiscanvasrect, *args):
+		thiscanvasrect.pos = thiswidget.pos
+		thiscanvasrect.size = thiswidget.size
+
+	#'Garbage' Collection of all displayed widgets, if any
+	def removePreferredStops(self, *args):
+		#If loading widget is active, remove it.
+		if self.loading_widget_collector:
+			for each_loading_widget in self.loading_widget_collector:
+				self.ids['preferredstops_mainbody'].remove_widget(self.loading_widget_collector.pop())
+
+		#Removes previous instances (IF ANY)
+		if self.widget_garbage_collector:
+			for each_Grid in self.widget_garbage_collector:
+				self.ids['preferredstops_body'].remove_widget(self.widget_garbage_collector.pop())
+
+	#GET Request from RESTful API: DreamFactory
+	def getUserSaveBusRecords(self):
+		userSaveBusRecords = app.getUserSaveBusRecords()
+		self.isthread1_done = True
+		#return userSaveBusRecords
+
+	def checkUserSaveBusRecords_if_exist(self, *args):
+		#still waiting for thread 1
+		while not self.isthread1_done:
+			time.sleep(1)
+		#Removes scroll lock if reloading
+		if self.is_reloading:
+			self.ids['preferred_scroll_view'].do_scroll_y = True
+		#Enable the screen again
+		self.isScreenDisabled = False
+		#check is done, remove old widgets
+		Clock.schedule_once(self.removePreferredStops,0)
+		#displays new widgets
+		Clock.schedule_once(self.showPreferredStops, 0)
+
+	#Pull to refresh Behaviour
+	def pullToRefresh(self, scr_val):
+
+		#Large overscroll. The gap between slight scroll and this must be significant. Else, the user could have missed slight scroll activity
+		if scr_val>1.05:
+			self.is_reloading = True
+
+		#Slight overscroll activity
+		elif (scr_val>1.02):
+			#shows 'pull down to refresh' instructions
+			if not self.showInstruction and not self.is_reloading:
+				self.showInstruction = True
+			#User Release after refreshing
+			if self.showInstruction and self.is_reloading:
+				#Lock Scroll
+				self.ids['preferred_scroll_view'].do_scroll_y = False
+				self.start_refresh()
+		
+		#No overscroll activity
+		else:
+			self.is_reloading = False
+			if self.showInstruction:
+				self.showInstruction = False
+
+	def start_refresh(self):
+		#Show Loading widget
+		loadingwidget = LoadingWidget()
+		self.ids['preferredstops_mainbody'].add_widget(loadingwidget)
+		self.loading_widget_collector.append(loadingwidget)
+
+		#Disable the mainbody
+		self.isScreenDisabled = True
+
+		#Call for widget update. Once the widgets are ready, the scroll lock is removed by self.createPreferredStops()
+		self.createPreferredStops()
+		#Label will be auto removed
+
+	def on_showInstruction(self, *args):
+		#if user is pulling down
+		if self.showInstruction:
+			hiddenwidgets = self.ids['preferredstops_body']
+			self.ids['main_body'].remove_widget(self.ids['preferredstops_body'])
+			#show instructions
+			self.instructions_label = Label(text='[b]PULL DOWN TO REFRESH[/b]', markup=True)
+			self.ids['main_body'].add_widget(self.instructions_label)
+			self.ids['main_body'].add_widget(hiddenwidgets)
+
+		#if user is not pulling down anymore
+		elif not self.showInstruction:
+			#hide instructions
+			self.ids['main_body'].remove_widget(self.instructions_label)
+
+class EachSavedPreference():
+
+	def __init__(self, _busstopid, _serviceno, *args):
+		#Local variables
+		self._busstopid = _busstopid
+		self._serviceno = _serviceno
+		
+		#All the required Labels
+		self.bus_stop_name = Label(
+			text='[b]{}[/b]'.format(str(self.getBusStopName(str(_busstopid)))), 
+			size_hint=(1,None), 
+			height='30dp',
+			markup=True,
+			font_size='15sp'
+			)
+		self.bus_stop_text = Label(
+			text='BUS STOP', 
+			size_hint=(1,None), 
+			height='20dp'
+			)
+		self.bus_stop_label = Label(
+			text=_busstopid, 
+			size_hint=(1,None), 
+			height='20sp'
+			)
+		self.service_no_label = Label(
+			text='[b]{}[/b]'.format(_serviceno), 
+			font_size='35sp', 
+			size_hint=(1,None), 
+			height='60dp', 
+			markup=True
+			)
+		self.next_bus_text = Label(
+			text='NEXT BUS', 
+			size_hint=(1,None), 
+			height='60dp'
+			)
+		self.subsequent_bus_text = Label(
+			text='SUBSEQUENT BUS', 
+			size_hint=(1,None), 
+			height='60dp'
+			)
+		self.next_arrival_label = Label(
+			text=self.getBusTime(0), 
+			size_hint=(1,None), 
+			height='25dp',
+			font_size='20sp',
+			valign='top'
+			)
+		self.subsequent_arrival_label = Label(
+			text=self.getBusTime(1), 
+			size_hint=(1,None), 
+			height='25dp',
+			font_size='20sp',
+			valign='top'
+			)
+		self.next_load_label = Label(
+			text=self.getNextBusLoad(), 
+			size_hint=(1,None), 
+			height='50dp'
+			)
+		self.subsequent_load_label = Label(
+			text=self.getSubsequentBusLoad(), 
+			size_hint=(1,None), 
+			height='50dp'
+			)
+
+		#Grouping in Grid 0
+		self.grid0_labels = [self.bus_stop_name]	
+		
+		#Grouping in Grid 1
+		self.grid1_labels = [self.bus_stop_text, self.bus_stop_label]
+
+		#Grouping in Grid 2
+		self.grid2_labels = [self.service_no_label]
+	
+
+		#Grouping in Grid 3 follows the arrangement as shown below
+		self.grid3_labels = [self.next_bus_text, self.subsequent_bus_text, 
+				self.next_arrival_label, self.subsequent_arrival_label, 
+				self.next_load_label, self.subsequent_load_label]
+
+		#Creating the Layout (Made up of 3 GridLayouts)
+		self.grid0 = GridLayout(cols=1, size_hint=(1,None),height=self.bus_stop_name.height)
+		self.grid1 = GridLayout(cols=2, size_hint=(1,None),height=self.bus_stop_text.height)
+		self.grid2 = GridLayout(cols=1, size_hint=(1,None), height=self.service_no_label.height)
+		self.grid3 = GridLayout(cols=2, rows=3, size_hint=(1,None), height=(self.next_bus_text.height+self.next_arrival_label.height+self.next_load_label.height)*1.2)
+
+		#Adding the Labels to each GridLayout
+		for each_grid0_label in self.grid0_labels:
+			self.grid0.add_widget(each_grid0_label)
+
+		for each_grid1_label in self.grid1_labels:
+			self.grid1.add_widget(each_grid1_label)
+
+		for each_grid2_label in self.grid2_labels:
+			self.grid2.add_widget(each_grid2_label)
+
+		for each_grid3_label in self.grid3_labels:
+			self.grid3.add_widget(each_grid3_label)
+
+		self.mainGrid = GridLayout(
+			cols=1, 
+			size_hint=(1,None), 
+			height=(self.grid0.height+self.grid1.height+self.grid2.height+self.grid3.height), 
+			padding=('15dp','15dp','15dp','15dp')
+			)
+		self.mainGrid.add_widget(self.grid0)
+		self.mainGrid.add_widget(self.grid1)
+		self.mainGrid.add_widget(self.grid2)
+		self.mainGrid.add_widget(self.grid3)
+
+	def getBusTime(self, which_bus):
+		#which_bus can be either getNextTiming or getSubsequentTiming
+		which_bus_timing = ['getNextTiming', 'getSubsequentTiming']
+
+		try:
+			#Creates a GET request instance
+			self.busInstance = datamall.BusInfo(self._busstopid, self._serviceno)
+			#Gets Data
+			self.busInstance.scrapeBusInfo()
+			dateTime = getattr(self.busInstance, which_bus_timing[which_bus])()
+			#Finds the time	
+			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+', dateTime)
+			#grabTime[0]==date #grabTime[1]==time(UTC)
+			timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
+			timeLeft = re.split(r'\D',str(timedelta))
+			if dateTime:	 
+				#timeLeft[0] can return null at times
+				if not (timeLeft[0]):
+					timeLeft[0]=0
+				#return minutes and seconds
+				#return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
+				#return minutes only
+				return '%s mins' %(str(int(timeLeft[0])*60+int(timeLeft[1])))
+		except TypeError as e:
+			return BUS_SERVICE_ENDED
+		except KeyError as e:
+			return BUS_SERVICE_ENDED
+
+	def getNextBusLoad(self):
+		return self.busInstance.getNextLoad()
+	def getSubsequentBusLoad(self):
+		return self.busInstance.getSubsequentLoad()
+
+	def getBusStopName(self, _busstop_id):
+		return app.datamall_bus_stop.getBusStopName(str(_busstop_id))
+
+	def getGridLayout(self):
+		return self.mainGrid
+
+class FacebookUI_Existing_User(Screen):
+
+	def on_pre_enter(self, *args):
+		#updates footer button on enter
+		self.ids['footer'].ids['footer_accountsettings_button'].ids['footer_accountsettings_button_image'].source = 'data/User Accounts inactive.png'
+		self.ids.labelAccountID.text = app._facebookid
+
+	def launchPopup(self, title):
+		popupContent = askConfirmation()
+		popupContent.setText(title, popupContent)	
+		popup = Popup(title=title, content=popupContent, size_hint=(0.8,0.3), auto_dismiss=False)
+		
+		self.btnYesBehaviour(title, popupContent, popup)
+		#Binds cancel button to dismiss activity
+		popupContent.ids.btnDismiss.bind(on_press=popup.dismiss)
+		popup.open()
+
+	def btnYesBehaviour(self, title, popupContent, popup):
+		if (title=="Logout"):
+			#Binds the yes button to the LOGOUT activity
+			popupContent.ids.btnYes.bind(on_press=partial(self.logoutUser, popup))
+		
+		elif (title=="Reset"):
+			#Bind the yes button to the RESET activity
+			popupContent.ids.btnYes.bind(on_press=partial(self.resetUser, popup))
+
+	def logoutUser(self, popup, *args):
+		app._toast('You are now logged out')
+		popup.dismiss()
+		#Deletes the save file
+		app.fb_userprofile.removeUSER()
+		#Transfer to the main screen
+		app.root_widget.current = 'accountsettings'
+
+	def resetUser(self, popup, *args):
+		app._toast('Deleting your records')
+		popup.dismiss()
+		#Deletes all the user saved buses using FB ID as a filter
+		response = datadb.DeleteDBInfo().deleteAllUserRecords(app._facebookid)
+		if (response.status_code == 200):
+			app._toast('Your account has been reset')
+			app.all_saved_busstopNo = []
+			app.all_saved_busno = []
+		else:
+			app._toast('Something went wrong. Cannot reset your account')
+
+
+
+class askConfirmation(RelativeLayout):
+
+	def setText(self, title, popup):
+		if (title=="Logout"):
+			self.ids.labelText.text = "Do you really want to LOGOUT?"
+		elif (title=="Reset"):
+			self.ids.labelText.text = "Are you sure that you want to RESET your account?"
+
+
 
 
 class BusTimingScreen(Screen):
