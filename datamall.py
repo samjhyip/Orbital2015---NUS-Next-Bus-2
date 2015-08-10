@@ -3,6 +3,7 @@ import urllib
 import json
 from urlparse import urlparse
 import re
+from kivy.logger import Logger
 
 #External libraries
 import httplib2 as http 
@@ -36,10 +37,10 @@ class BusInfo(object):
     #    print time
     #    print busNo["Feature"] 
 
-    def __init__(self,busstopid,serviceno):
+    def __init__(self, busstopid, serviceno):
         #authentication parameters
-        headers = {'AccountKey' : '1DxxvzbHwydZ3uw6UKNA9w==',
-                    'UniqueUserId' : '687ef57c-810a-414a-b0f8-df4b78bf9ef6',
+        headers = {'AccountKey' : 'LTA ACCOUNT KEY HERE',
+                    'UniqueUserId' : 'LTA UNIQUE USER ID HERE',
                     'accept' : 'application/json' 
                     }
     
@@ -60,11 +61,14 @@ class BusInfo(object):
         #Get handle to handle http
         h = http.Http()
         
-        #Sends GET Request
-        response, content = h.request(target.geturl(), method, body, headers)
-        
-        #Parse JSON to print
-        self.dumpout = json.loads(content)
+	#Sends GET Request
+	self.response, content = h.request(target.geturl(), method, body, headers)	
+	
+	#Parse JSON to print
+	self.dumpout = json.loads(content)
+
+	#Debug
+	#Logger.info('Searching for Bus: '+str(self.response))
 
     #SINGLE BUS TEST REPONSE
     def scrapeBusInfo(self):
@@ -103,3 +107,7 @@ class BusInfo(object):
     #DEBUG::Gets Raw JSON Output
     def getJSONdump(self):
 	return self.dumpout
+
+    
+
+		
