@@ -1142,19 +1142,21 @@ class ScreenManagement(ScreenManager):
 
 
 
-class ScreenManager(App):
+class NUSNextBus(App):
 	#Callback properties
 	post_status = StringProperty('-')
 	user_infos = StringProperty('-')
 	facebook = ObjectProperty()
 	
 	#Class variables
-	_facebookid = ''
+	_facebookid = StringProperty('')
 	_username = ''
 	_firstname = ''
 	_lastname = ''
 	all_saved_busstopNo = []
 	all_saved_busno = []
+	isRecordRetrieved = False
+	fb_userprofile = ObjectProperty()
 
 	def build(self):
 		global app
@@ -1261,7 +1263,7 @@ class ScreenManager(App):
 				self._username = user.getUsername()
 				self._firstname = user.getFirstName()
 				self._lastname = user.getLastName()
-				self.startnewSaveThread()
+				self.saveFacebookInfoThread()
 			#if this platform is not android
 			else:
 				infos = ['ha', 'ha', 'wish', 'this', 'was', 'real']
@@ -1269,12 +1271,14 @@ class ScreenManager(App):
 		self.facebook.me(callback)
 
 	#separate thread to save basic user information
-	def startnewSaveThread(self):
-		thread = Thread(target=self.savefacebookinfo,args=())
-		thread.start()
+	def saveFacebookInfoThread(self):
+		saveFacebookInfothread = Thread(target=self.savefacebookinfo,args=()).start()
 
 	#callback for saving user information
 	def savefacebookinfo(self):
+		#Create the FB USER CSV. Info is saved locally
+		userprofile.UserProfile(self.user_data_dir, self._facebookid, self._firstname, self._lastname)
+
 		#Use Identifier of the record to retrieve response code from 'users' table
 		response = datadb.GetDBInfo().requestRecordByIdentifier("users",self._facebookid)
 		Logger.info('Finding user from DreamFactory RESTful API. Response Code: {}'.format(response))
@@ -1282,7 +1286,21 @@ class ScreenManager(App):
 		if response.status_code != 200:
 			response = datadb.PostDBInfo().createUserTableRecords(self._facebookid,self._firstname+self._lastname,self._firstname,self._lastname)
 			Logger.info('Creating user from DreamFactory RESTful API. Response: {}'.format(response))
+			
+	def awaitingUserChangeScreen(self):
+		changeUserScreenThread = Thread(target=self.checkFacebookLoginDone,args=()).start()
 	
+	def checkFacebookLoginDone(self, *args):
+		while not self._facebookid:
+			time.sleep(1)
+		#Login in Ok!
+		Clock.schedule_once(self.newUserChangeScreen,0)
+
+	def newUserChangeScreen(self, *args):
+		#Login is okay, change screen!
+		self._toast('Welcome {} {}'.format(self._firstname, self._lastname))
+		self.root_widget.current = 'searchscreen'
+
 	def getFacebookID(self):
 		return self._facebookid
 
