@@ -272,13 +272,23 @@ class SearchBus(Screen):
 			self.ids['searchscreen_main_body'].add_widget(loading_widget)
 			self.loading_widget_collector.append(loading_widget)
 
-		#Removes existing labels, (if any) using label ref
-		if self.current_labels:
-			for _label in self.current_labels:
-				self.remove_widget(_label)
+			#Disables main body
+			self.isScreenDisabled = True
 
-		#Get user preferences (saved buses)
-		app.getUserSaveBusRecords()
+			#Get user preferences (saved buses)>>UI remains responsive now. Widgets can only be created after records are retrieved
+			#Retrieval of records allow for Checkboxes to be created with user's preference shown
+			self.retrievePreferredStops()
+
+		#invalid bus stop id or when all bus services have ceased operation
+		else:
+			app._toast('Invalid Bus Stop!')
+
+
+	def create_bus_instance_widgets(self, *args):
+		#Stop displaying loading widget
+		if self.loading_widget_collector:
+			for loading_widget in self.loading_widget_collector:
+				self.ids['searchscreen_main_body'].remove_widget(self.loading_widget_collector.pop())
 
 		#creates new labels and appends ref
 		for (eachbus,row) in zip(busservices,range(len(busservices))):
