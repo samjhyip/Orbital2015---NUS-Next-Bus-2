@@ -458,10 +458,31 @@ class EachBus():
 		self.nextbusloadlabel.text_size = self.nextbusloadlabel.size
 
 		#creates the subsequentbustime instance
-		self.subsequentbustimelabel = Label(font_size=22, text=self.getSubsequentBusTime(), size_hint=(0.3,0.05), pos_hint={"x":0.5, "y":(0.75-row*0.1)})
-		self.subsequentbusloadlabel = Label(font_size=22, text=self.getSubsequentBusLoad(), size_hint=(0.3,0.05), pos_hint={"x":0.5, "y":(0.70-row*0.1)})
+		self.subsequentbustimelabel = Label(
+			font_size='16sp', 
+			text=self.getBusTime(1), 
+			size_hint=(0.35,None), 
+			height=60
+			)
+		self.subsequentbusloadlabel = Label(
+			font_size='12sp', 
+			text=self.getSubsequentBusLoad(), 
+			size_hint=(0.35,None), 
+			height=90, 
+			halign='center'
+			)
+		#to wrap text size according to the label size
+		self.subsequentbusloadlabel.text_size = self.subsequentbusloadlabel.size
+		
 		#Creates the service number instance
-		self.servicenolabel = Label(font_size=22, text=self.getServiceNo(), size_hint=(0.2,0.05), pos_hint={"x":0, "y":(0.75-row*0.1)})
+		self.servicenolabel = Label(
+			font_size='35sp', 
+			text=self.getServiceNo(), 
+			size_hint=(0.15,None), 
+			height=60,
+			padding_y='18dp'
+			)
+
 		#Creates the save bus checkbox
 		saved_status = False
 		#checks if the user has saved this bus 
