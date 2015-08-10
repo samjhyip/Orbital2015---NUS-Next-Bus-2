@@ -291,10 +291,10 @@ class SearchBus(Screen):
 				self.ids['searchscreen_main_body'].remove_widget(self.loading_widget_collector.pop())
 
 		#creates new labels and appends ref
-		for (eachbus,row) in zip(busservices,range(len(busservices))):
+		for (eachbus) in self.busservices:
 			#Creates an EachBus instance for eachbus & Adds the Label instance to root. One bus service to one EachBus() instance
-			each_bus_instance = EachBus(self._busstopnoinput, eachbus['ServiceNo'], row)			
-			alllabels = each_bus_instance.getLabels()
+			self.each_bus_instance = EachBus(self._busstopnoinput, eachbus['ServiceNo'])			
+			self.eachbuswidget = self.each_bus_instance.getEachBusGridLayoutWidget()
 
 			#Append each label and checkbox to current screen
 			for eachlabel in alllabels:
