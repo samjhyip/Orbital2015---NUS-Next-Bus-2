@@ -30,9 +30,9 @@ import toast
 from facebook import Facebook #jnius Interpreter
 
 #Default <Bus Service ended> text
-busServiceEnded = 'Not Available'
+BUS_SERVICE_ENDED = 'Not Available'
 #Bus Timing Update Frequency (seconds)
-_updateFrequency = 5
+UPDATE_FREQUENCY = 5
 #Facebook APP ID
 FACEBOOK_APP_ID = '904238149623014'
 
