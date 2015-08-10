@@ -379,6 +379,45 @@ class SearchBus(Screen):
 		response = datadb.PostDBInfo().createUserSaveBusRecords(_serviceno, _busstopid, app._facebookid)
 		Logger.info('Saving the User\'s preference' + str(response))
 
+	def deleteUserSaveBusRecords(self, _serviceno, _busstopid, _labelref, *args):
+		#Deletes a UserSaveBusRecord
+		response = datadb.DeleteDBInfo().deleteUserSavebusRecords(_serviceno, _busstopid, app._facebookid)
+		#Logger.info('Deleting the User\'s preference' + str(response))
+
+		#We have a response from the DELETE request
+		delete_complete_status_code = response.status_code
+		self.deleteCompleted(delete_complete_status_code)
+	
+	def saveCompleted(self, save_complete_status_code, *args):
+		Clock.schedule_once(partial(self.showSaveCompletedToast, save_complete_status_code), 0)
+	
+	def showSaveCompletedToast(self, save_complete_status_code, *args):
+		#Response for POST is 200
+		if save_complete_status_code==200:
+			#Remove Saving now widget
+			if self.loading_widget_collector:
+				for each_saving_widget in self.loading_widget_collector:
+					self.ids['searchscreen_main_body'].remove_widget(self.loading_widget_collector.pop())
+			app._toast('Saved!')
+			self.isScreenDisabled = False
+		else:
+			app._toast('Can\'t save! Error Code: {}'.format(str(self.save_complete)))
+
+	def deleteCompleted(self, delete_complete_status_code, *args):
+		Clock.schedule_once(partial(self.showDeleteCompletedToast, delete_complete_status_code), 0)
+
+	def showDeleteCompletedToast(self, delete_complete_status_code, *args):
+		#Response for DELETE is 200
+		if delete_complete_status_code==200:
+			#Remove Deleting now widget
+			if self.loading_widget_collector:
+				#Updates widget Label
+				for each_deleting_widget in self.loading_widget_collector:
+					self.ids['searchscreen_main_body'].remove_widget(self.loading_widget_collector.pop())
+			app._toast('Deleted!')
+			self.isScreenDisabled = False
+		else:
+			app._toast('Can\'t delete! Error Code: {}'.format(str(self.delete_complete)))
 
 	
 #Contains the instance for Each bus
