@@ -59,7 +59,176 @@ class MainScreen(Screen):
  
 class SearchBus(Screen):
 	current_labels=[]
-	
+	loading_widget_collector=[]
+	listview_widget_collector=[]
+	isScreenDisabled = BooleanProperty(False)
+
+	scrolleffect = DummyScrollEffect
+
+	def on_isScreenDisabled(self, *args):
+		if self.isScreenDisabled:
+			self.ids['searchbusscreen_floatlayout'].disabled = True
+		else:
+			self.ids['searchbusscreen_floatlayout'].disabled = False
+
+	def expand_menu(self):
+		#Removes active header
+		header_label = self.ids['searchbus1']
+		header_placeholder = self.ids['header_placeholder']
+		header_searchbutton = self.ids['search_button_grid']
+		self.header_active = [header_label, header_placeholder, header_searchbutton]
+		
+		for each_header_widget in self.header_active:
+			self.ids['header'].remove_widget(each_header_widget) 
+
+		#Changes to active input menu
+		self.header_back_button = Button(
+			to_parent=True,
+			size_hint=(0.1,1),
+			background_normal='data/return.png',
+			background_down='data/return_down.png'
+			)
+		self.header_back_button.bind(on_release=self.contract_menu)
+
+		#Text Input Field Behaviour
+		self.header_textinput = TextInput(
+			to_parent=True,
+			size_hint=(0.9,1),
+			pos_hint={"top":1,"left":1},
+			height='120dp', 
+			multiline=False, 
+			cursor_blink=True,
+			cursor_color=(1,1,1,1),
+			foreground_color=(1,1,1,1),
+			hint_text_color=(1,1,1,0.7),
+			hint_text='Search a bus stop number',
+			font_size='24sp',
+			background_active='data/text_input_focus.png',
+			background_normal='data/text_input.png'
+			)
+		#on_text behaviour
+		self.header_textinput.bind(text=self.on_text)
+		#on validate key behaviour
+		self.header_textinput.bind(on_text_validate=self.start_search)
+
+		self.header_inactive = [self.header_back_button, self.header_textinput]
+
+		for each_header_widget in self.header_inactive:
+			self.ids['header'].add_widget(each_header_widget)
+
+		#Sets focus to the text input (updates in the next frame, or it will not work. This is a getaround)
+		Clock.schedule_once(self.focus_on_textinput,0)
+
+	def contract_menu(self, *args):
+		#removes inactive header
+		for each_header_widget in self.header_inactive:
+			self.ids['header'].remove_widget(each_header_widget)
+
+		#removes the listview if exists
+		if self.listview_widget_collector:
+			for each_listview_widget in self.listview_widget_collector:
+				self.ids['searchbusscreen_floatlayout'].remove_widget(self.listview_widget_collector.pop()) 
+				
+		#restores active header
+		for each_header_widget in self.header_active:
+			self.ids['header'].add_widget(each_header_widget)
+
+	def focus_on_textinput(self, *args):
+		self.header_textinput.focus = True
+
+	#Suggested Bus stops
+	def on_text(self, *args):
+		#get text field text
+		text_input_value = self.header_textinput.text
+		#once user has type 3 letters and more, start substring search
+		if len(text_input_value)>2:
+
+			#if previous listview exists, remove it
+			self.closeListView()
+
+			#start search, put the response data in a list adapter
+			suggestions = app.datamall_bus_stop.busnamesubstringSearch(text_input_value)
+			
+			#ListitemButton Behaviour
+			args_converter = lambda row_index, rec: {
+			'text':rec['text'],
+			'size_hint':(None,None),
+			'height': '50dp',
+			'width': self.header_textinput.width
+			}
+
+			suggestion_listadapter = ListAdapter(
+				data=suggestions,
+				args_converter=args_converter,
+				selection_mode='multiple',
+				selection_limit=1,
+				allow_empty_selection=True,
+				cls=ListItemButton
+				)
+			#binds each listview button to the autofill function
+			suggestion_listadapter.bind(on_selection_change=self.selection_change)
+			
+			#Logger.info("heightheight"+str(dp(60)))
+			#Logger.info("heightheight"+str(float(dp(50)*len(suggestions)/self.height)))
+
+			self.suggestion_listview = ListView(
+				adapter=suggestion_listadapter,
+				size_hint_y=(float(dp(50)*len(suggestions)/self.height)) if (float(dp(50)*len(suggestions)/self.height))<0.4 else 0.4,
+				width=self.header_textinput.width,
+				pos_hint={"top":(self.height-self.header_textinput.height*1.3)/self.height},
+				x=self.header_textinput.x
+				)
+
+			#The container is a GridLayout widget held within a ScrollView widget.
+			#So we are giving the ScrollViewParent a custom scroll effect
+			#ListView >> ScrollView >> GridLayout
+			#effect_cls is an ObjectProperty and defaults to DampedScrollEffect.
+			self.suggestion_listview.container.parent.effect_cls = self.scrolleffect
+
+			#Timeout allowed to trigger the scroll_distance, in milliseconds. If the user has not moved scroll_distance within the timeout, the scrolling will be disabled, and the touch event will go to the children.
+			self.suggestion_listview.container.parent.scroll_distance = 10
+			self.suggestion_listview.container.parent.scroll_timeout = 	1000
+
+			self.listview_widget_collector.append(self.suggestion_listview)
+			self.ids['searchbusscreen_floatlayout'].add_widget(self.suggestion_listview)
+
+		else:
+			#User is deleting his input, so naturally, we shall close the listview (if it exists)
+			self.closeListView()
+
+	#user touches a suggestion
+	def selection_change(self, *args):
+		selected_item = args[0].selection[0]
+		#Logger.info("busstopselection"+str(selected_item.text))
+		
+		#On First Selection or when the textinput is not the same as the option selected
+		#Auto fills the text input widget
+		if selected_item.text != self.header_textinput.text:
+			self.header_textinput.text = selected_item.text
+
+		#On Second Selection + color change
+		#If text field is the same as the text in the selection, close the listview and start the search
+		else:
+			self.start_search()
+
+
+	def getBusStopNamefromCode(self, _busstopcode):
+		return app.datamall_bus_stop.getBusStopName(_busstopcode)
+
+	def closeListView(self):
+		#close the suggestion listview (if any)
+		if self.listview_widget_collector:
+			for each_listview in self.listview_widget_collector:
+				self.ids['searchbusscreen_floatlayout'].remove_widget(self.listview_widget_collector.pop())
+
+	#search text input accepts strings and numbers
+	def start_search(self, *args):
+		#if listview is active, close it
+		self.closeListView()
+		self.getUserInput()
+		self.contract_menu()
+		self.searchUserInput()
+
 	#Gets user input from the text fields busStopNoInput & busNoInput
 	def getUserInput(self):
 		self._busstopnoinput = self.ids['busStopNoInput'].text
