@@ -1177,7 +1177,46 @@ class ScreenManager(App):
 		#Define callback as modal_ctl.ask_connect()
 		netcheck.set_prompt(modal_ctl.ask_connect)
 		self.facebook.set_retry_prompt(modal_ctl.ask_retry_facebook)
-		
+
+
+		'''
+		Load Bus Stop Directory
+		'''
+		#Retrieve Bus Stop Details from CSV
+		self.datamall_bus_stop = datamall_bus_stop.BusStop()
+
+
+		'''
+		Load Facebook Profile
+		'''
+		#Check if this is the first login
+		self.fb_userprofile = userprofile.UserProfile(self.user_data_dir)
+		#If existing user, IS_EXISTINGUSER=True
+		self.IS_EXISTINGUSER = self.fb_userprofile.isExistingUser
+		#If existing user, USER_PROFILE will not be an empty dict
+		self.USER_PROFILE = self.fb_userprofile._user_profile
+
+		if platform == 'android':
+			if self.IS_EXISTINGUSER:
+				#Loads Screen for existing Users
+				self.root_widget.current = 'searchscreen'
+				self._facebookid = self.USER_PROFILE['facebook_id']
+				self._firstname = self.USER_PROFILE['firstname']
+				self._lastname = self.USER_PROFILE['lastname']
+			else:
+				#Loads Screen for new users
+				self.root_widget.current = 'accountsettings'
+
+		#Not on android
+		else:
+			self.root_widget.current = 'PCaccountsettings'
+
+		'''
+		Update Footer for Search Screen(the main screen)
+		'''
+		self.root_widget.ids['searchbusscreen'].ids['footer'].ids['footer_search_button'].ids['footer_search_button_image'].source = 'data/Searches Folder_inactive.png'
+
+
 	#Allows for this app to be paused when Facebook app is opened
 	def on_pause(self):
 		Logger.info('Android: App paused, now wait for resume.')
