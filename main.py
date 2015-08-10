@@ -383,14 +383,15 @@ class SearchBus(Screen):
 			#app._toast('Deleting. Don\'t quit the app!')
 
 		elif not app._facebookid:
-			_labelref.active = False
-			app._toast('Please login into Facebook first')
+			if _labelref.active is True:
+				_labelref.active = False
+				app._toast('Please login into Facebook first')
 
-	def createUserSaveBusRecords(self, _serviceno, _busstopid, _labelref):
+	def createUserSaveBusRecords(self, _serviceno, _busstopid, _labelref, *args):
 		#if the SaveBusRecords does not exist, response code of GET request is != 200
 		#Create a new UserSaveBusRecords
 		response = datadb.PostDBInfo().createUserSaveBusRecords(_serviceno, _busstopid, app._facebookid)
-		Logger.info('Saving the User\'s preference' + str(response))
+		#Logger.info('Saving the User\'s preference' + str(response))
 
 	def deleteUserSaveBusRecords(self, _serviceno, _busstopid, _labelref, *args):
 		#Deletes a UserSaveBusRecord
