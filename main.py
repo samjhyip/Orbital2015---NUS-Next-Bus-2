@@ -512,23 +512,23 @@ class EachBus():
 			height=90
 			)
 
-	def getNextBusTime(self):
-		try:
-			#Creates a GET request instance
-			self.busInstance = datamall.BusInfo(self._busstopid,self._serviceno)
-			self.busInstance.scrapeBusInfo()
-			dateTime = self.busInstance.getNextTiming()
-			grabTime = re.findall('[0-9]+\D[0-9]+\D[0-9]+',dateTime)
-			#grabTime[0]==date #grabTime[1]==time(UTC)
-			timedelta = datetime.datetime.strptime(grabTime[1],"%H:%M:%S") - datetime.datetime.strptime(DateTimeInfo().getUTCTime(),"%H:%M:%S")
-			timeLeft = re.split(r'\D',str(timedelta))
-			if dateTime:	
-				#timeLeft[0] can return null at times
-				if not (timeLeft[0]):
-					timeLeft[0]=0	
-				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
-		except TypeError:
-			return busServiceEnded
+		#GridLayout to contain each bus's information
+		self.gridlayout = GridLayout(
+			cols=4,
+			rows=3,
+			size_hint=(1,None),
+			height=(self.nextbustimelabel.height+self.dummylabel1.height)*2, 
+			padding=('25dp','15dp','15dp','10dp'),
+			spacing=(0,'10dp')
+			)
+
+		for each_bus_label in self.getLabels():	
+			self.gridlayout.add_widget(each_bus_label)
+
+
+	def getBusTime(self, which_bus):
+		#which_bus can be either getNextTiming or getSubsequentTiming
+		which_bus_timing = ['getNextTiming', 'getSubsequentTiming']
 
 	def getSubsequentBusTime(self):
 		try:
