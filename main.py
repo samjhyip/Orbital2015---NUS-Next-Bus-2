@@ -369,6 +369,7 @@ class SearchBus(Screen):
 			app.all_saved_busno.append(_serviceno)
 			#app._toast('Saving. Don\'t quit the app!')
 		#If logged in and has unchecked this bus
+
 		elif app._facebookid and not _labelref.active == True:
 			#show deleting widget
 			deleting_widget = DeletingWidget()
@@ -566,12 +567,16 @@ class EachBus():
 	def getLabels(self):
 		self.alllabels=[self.servicenolabel,
 				self.nextbustimelabel,
-				self.nextbusloadlabel,
 				self.subsequentbustimelabel,
+				self.savebuscheckbox,
+				self.dummylabel1,
+				self.nextbusloadlabel,	
 				self.subsequentbusloadlabel,
-				self.savebuscheckbox]
+				self.dummylabel2]
 		return self.alllabels
 
+	def getEachBusGridLayoutWidget(self):
+		return self.gridlayout
 
 
 class PreferredStops(Screen):
@@ -959,7 +964,7 @@ class BusTimingScreen(Screen):
 	_serviceno = 911
 	
 	def getNextBusTime(self):
-		Clock.schedule_once(self.updateNextBusTime,_updateFrequency)
+		Clock.schedule_once(self.updateNextBusTime,UPDATE_FREQUENCY)
 		try:
 			self.busInstance = datamall.BusInfo(self._busstopid,self._serviceno)
 			self.busInstance.scrapeBusInfo()
@@ -974,10 +979,10 @@ class BusTimingScreen(Screen):
 					timeLeft[0]=0	
 				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
 		except TypeError:
-			return busServiceEnded
+			return BUS_SERVICE_ENDED
 
 	def getSubsequentBusTime(self):
-		Clock.schedule_once(self.updateSubsequentBusTime,_updateFrequency)
+		Clock.schedule_once(self.updateSubsequentBusTime,UPDATE_FREQUENCY)
 		try:
 			self.busInstance = datamall.BusInfo(self._busstopid,self._serviceno)
 			self.busInstance.scrapeBusInfo()
@@ -992,7 +997,7 @@ class BusTimingScreen(Screen):
 					timeLeft[0]=0	
 				return '%s MINUTES %s SECONDS' %(str(int(timeLeft[0])*60+int(timeLeft[1])),timeLeft[2])
 		except TypeError:	
-			return busServiceEnded
+			return BUS_SERVICE_ENDED
 
 
 	def updateNextBusTime(self, *args):
@@ -1046,7 +1051,7 @@ class FacebookUI(Screen):
 
     status_text = StringProperty()
     def __init__(self, **kwargs):
-        super(FacebookUI, self).__init__(**kwargs)
+        super(FacebookUI_New_User, self).__init__(**kwargs)
         app.bind(facebook=self.hook_fb)
         self.status_text = 'Facebook Status: [b]{}[/b]\nMessage: [b]{}[/b]'.format('Not Connected','-')
         
@@ -1161,6 +1166,7 @@ class NUSNextBus(App):
 	def build(self):
 		global app
 		app = self
+
 		#Creating presentation retains an instance that we can reference to
 		root_widget = Builder.load_file("layout.kv")
 		#Saves a Reference of the Screen Manager
@@ -1306,7 +1312,7 @@ class NUSNextBus(App):
 
 	#non-nus buses = requires bus stop and bus information
 	def savePreferredBus(self):
-		pass
+		pass	
 
 	def savePreferredNUSBusstop(self):
 		pass
@@ -1325,4 +1331,4 @@ class NUSNextBus(App):
 				self.all_saved_busno.append(each_bus_saved['busno'])
 
 if __name__=="__main__":
-	ScreenManager().run()
+	NUSNextBus().run()
