@@ -1,6 +1,7 @@
 # Orbital2015---NUS-Next-Bus-2
 
-LATEST DEBUG APK (v1.2.3): https://copy.com/K3KEnPmpTzhtLib9
+
+LATEST DEBUG APK 10 August 2015 (v1.2.3): https://copy.com/K3KEnPmpTzhtLib9
 
 This aims to retrieve public bus arrival timings as well as NUS's internal shuttle bus arrival timings for NUS students 
 
@@ -21,6 +22,7 @@ Projected Time Line: https://onedrive.live.com/redir?resid=d0d952fc3907e36e!4088
 
  
 Achieved Features for:
+
 1. Vostok - DB retrieval and Storage
 2. Gemini - Used Kivy & Python-for-android
 3. Gemini - JSON retrieval from LTA's datamall API and DreamFactory REST API
@@ -30,10 +32,12 @@ Achieved Features for:
  
 
 Failed to achieve:
+
 We did not manage to get the approval to access the NUS BUS API. In the request to OCA, they had replied that there are making changes to the bus contracts and are unable to share more about the API. The API listed in https://wiki.nus.edu.sg/display/nllapi/NUS+Living+Lab+API+Overview is now deprecated and thus unable to be used.
  
 
 4. References used:
+5. 
 Kv Language documentation (http://kivy.org/docs/guide/lang.html)
 MyTransport.SG:DataMall(http://www.mytransport.sg/content/mytransport/home/dataMall.html)
 JSON Encoder/Decoder (https://docs.python.org/2/library/json.html)
@@ -43,7 +47,6 @@ Kivy language syntax definition for Sublime Text (https://packagecontrol.io/pack
 MySQL Connector for Python (https://pypi.python.org/pypi/MySQL-python)
 
 For the documentation of NUS Next Bus 2
-
 Google Sheets (https://drive.google.com/?pli=1&authuser=0#my-drive) for creating our project log (cut and pasted in here)
 Trello (https://trello.com/) for feature making and card sorting.  Considered using Github Issues but decided to go for the card look.
 
