@@ -441,8 +441,22 @@ class EachBus():
 		self._busstopid = _busstopid
 		self._serviceno = _serviceno
 		#creates the nextbustime instance
-		self.nextbustimelabel = Label(font_size=22, text=self.getNextBusTime(), size_hint=(0.3,0.05), pos_hint={"x":0.2, "y":(0.75-row*0.1)})
-		self.nextbusloadlabel = Label(font_size=22, text=self.getNextBusLoad(), size_hint=(0.3,0.05), pos_hint={"x":0.2, "y":(0.70-row*0.1)})
+		self.nextbustimelabel = Label(
+			font_size='16sp',
+			text=self.getBusTime(0), 
+			size_hint=(0.35,None), 
+			height=60
+			)
+		self.nextbusloadlabel = Label(
+			font_size='12sp', 
+			text=self.getNextBusLoad(), 
+			size_hint=(0.35,None), 
+			height=90, 
+			halign='center'
+			)
+		#to wrap text size according to the label size
+		self.nextbusloadlabel.text_size = self.nextbusloadlabel.size
+
 		#creates the subsequentbustime instance
 		self.subsequentbustimelabel = Label(font_size=22, text=self.getSubsequentBusTime(), size_hint=(0.3,0.05), pos_hint={"x":0.5, "y":(0.75-row*0.1)})
 		self.subsequentbusloadlabel = Label(font_size=22, text=self.getSubsequentBusLoad(), size_hint=(0.3,0.05), pos_hint={"x":0.5, "y":(0.70-row*0.1)})
