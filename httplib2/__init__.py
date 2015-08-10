@@ -748,7 +748,7 @@ class HTTPConnectionWithTimeout(httplib.HTTPConnection):
             break
         if not self.sock:
             raise socket.error, msg
-'''
+
 class HTTPSConnectionWithTimeout(httplib.HTTPSConnection):
     "This class allows communication via SSL."
 
@@ -772,7 +772,7 @@ class HTTPSConnectionWithTimeout(httplib.HTTPSConnection):
             sock.settimeout(self.timeout)
         sock.connect((self.host, self.port))
         self.sock =_ssl_wrap_socket(sock, self.key_file, self.cert_file)
-'''
+
 
 
 class Http(object):
