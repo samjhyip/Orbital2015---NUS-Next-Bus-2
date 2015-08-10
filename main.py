@@ -357,12 +357,17 @@ class SearchBus(Screen):
 	def on_checkbox_active(self, _serviceno, _busstopid, _labelref, *args):
 		#If logged in and has checked this bus		
 		if app._facebookid and _labelref.active == True:
+			#show saving widget
+			saving_widget = SavingWidget()
+			self.ids['searchscreen_main_body'].add_widget(saving_widget)
+			self.loading_widget_collector.append(saving_widget)
+			self.isScreenDisabled = True
+
 			#updates mySQL DB
-			thread = Thread(target=self.createUserSaveBusRecords, args=(_serviceno, _busstopid, _labelref))
-			thread.start()
+			thread = Thread(target=self.createUserSaveBusRecords, args=(_serviceno, _busstopid, _labelref)).start()
 			app.all_saved_busstopNo.append(_busstopid)
 			app.all_saved_busno.append(_serviceno)
-			app._toast('Saved!')
+			#app._toast('Saving. Don\'t quit the app!')
 		#If logged in and has unchecked this bus
 		elif app._facebookid and not _labelref.active == True:
 			#updates mySQL DB
