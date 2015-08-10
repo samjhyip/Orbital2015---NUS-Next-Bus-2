@@ -104,17 +104,17 @@ class PostDBInfo(object):
         print response.text
         return response
 
-    def createUserSaveBusRecords(self, busno, busstopNo, Users_facebook_ID):
+    def createUserSaveBusRecords(self, busno, busstopNo, users_facebook_ID):
 	headers = {'X-DreamFactory-Application-Name' : 'nextbus2'}
         payload = {"record": [
                 {"busno": str(busno),
                 "busstopNo": str(busstopNo),
-                "Users_facebook_ID": str(Users_facebook_ID)
+                "Users_facebook_ID": str(users_facebook_ID)
 		}
               ]
             }
         response = requests.post('https://dsp-samjhyip.cloud.dreamfactory.com/rest/nextbus2/SavedBuses',
-                                 auth=(_user, _pass),headers=headers, data=json.dumps(payload),verify=False)
+                                 auth=(_user, _pass), headers=headers, data=json.dumps(payload),verify=False)
         print response.text
         return response
 
