@@ -41,6 +41,12 @@ class BusInfo(FloatLayout):
 	def __init__(self, **kwargs):
 		super(BusInfo, self).__init__(**kwargs)
 
+class DummyScrollEffect(ScrollEffect):
+	#ScrollEffect: Does not allow scrolling beyond the ScrollView boundaries.
+	#When scrolling would exceed the bounds of the ScrollView, it uses a ScrollEffect to handle the overscroll. These effects can perform actions like bouncing back, changing opacity, or simply preventing scrolling beyond the normal boundaries. Note that complex effects may perform many computations, which can be slow on weaker hardware.
+	#You can also create your own scroll effect by subclassing one of these, then pass it as the effect_cls in the same way.
+	pass
+
 class DateTimeInfo():
 	def getTimeNow(self):
 		#Returns local time
